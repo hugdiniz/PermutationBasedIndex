@@ -1,6 +1,8 @@
 from PermutationBasedIndex.distance_metric import pairwise_cosine_distance
+from math import ceil, sqrt, floor
+import numpy as np
 
-def reference_set_selection(X,ref_sel_threshold = 0.5, metric_vector_distance = pairwise_cosine_distance):
+def reference_set_selection(X,reference_set_size = 10,ref_sel_threshold = 0.5, metric_vector_distance = pairwise_cosine_distance):
     '''
         Distributed Selection: close reference points are neglected based on a threshold
          
@@ -18,10 +20,10 @@ def reference_set_selection(X,ref_sel_threshold = 0.5, metric_vector_distance = 
     first_reference = np.nonzero(metric_vector_distance(X[current_id,:],X) > ref_sel_threshold)[1]
 
     i = 0        
-    while len(set_id) < self.reference_set_size and i < len(first_reference):
+    while len(set_id) < reference_set_size and i < len(first_reference):
         current_id = first_reference[i]
         i += 1
-        current_reference = np.nonzero(metric_vector_distance(X[current_id,:],X[set_id,:]) < self.ref_sel_threshold)[1]
+        current_reference = np.nonzero(metric_vector_distance(X[current_id,:],X[set_id,:]) < ref_sel_threshold)[1]
         
         if len(current_reference) == 0:
             set_id.append(current_id)

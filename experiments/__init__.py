@@ -1,121 +1,136 @@
-import numpy as np
-
-from time import time
+'''
+    Created on 11/30/2017
+    @author: Hugo Rebelo
+'''
 import os
-import gc
-import sys
-import pickle
-
-from datasets.extractors import meter_extractor, \
-short_plagiarised_answers_extractor, pan_plagiarism_corpus_2011_extractor, \
-pan_plagiarism_corpus_2010_extractor
-
-  
+import numpy as np
 from sklearn.metrics.pairwise import pairwise_distances
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.utils import shuffle
+from time import time
+from math import floor
+import os.path
+import sys
+from time import time
+from PermutationBasedIndex.lsh import lsh
+from datasets.extractors import short_plagiarised_answers_extractor, pan_plagiarism_corpus_2010_extractor, pan_plagiarism_corpus_2011_extractor
+from locality_sensitive_hashing import minmax_hashing
+from sklearn.metrics import recall_score
+import json
+from scipy import sparse
 
+'''
+        IN -- Recieve dataset(In this case, fingerprints), document_index(index for dataset, not 'real indexes') and LSH variables(approachs , number of permutation and cell numbers for features partition approachs)
+        OUT -- indexes(index for dataset) and time to execute nearest neighbors
+'''    
+def nearest_neighbors_LSH(dataset,doc_index,approach = minmax_hashing,permutation = 100, cells_number = 2):
+    t0 = time()
+    lsh_dataset,time_lsh = lsh(dataset)
+    matrixDistance = pairwise_distances(lsh_dataset,metric='jaccard', n_jobs=1)
+    similarity_docs =matrixDistance[doc_index,:]
+    t1 = time() - t0
+    return np.argsort(similarity_docs),t1
+    
+def gerArrayPercent(array,percentNumber):
+    size = (percentNumber/100) * array.size
+    return array[:size]
+
+def getRealIndex(arrayRealIndex, index):
+    return arrayRealIndex[index]
+
+
+def loadPSA():
+    
+    paths =  [name for name in os.listdir(".") if os.path.isdir(name)]
+    documents,queries = [],[]
+    jsonDatas = json.load(open('query_answer_json'))
+    dataset_encoding='latin1'
+    tasks = ['a','b','c','d','e']
+    index_queries = []
+    index_queries_task = []    
+    i = 0
+    for jsonData in jsonDatas:
+        path = jsonData['plag_type']
+        file = jsonData['document']    
+        with open(os.path.join(path, file),encoding=dataset_encoding) as f:
+            text = ""            
+            for line in f:
+                text = text + line                
+            queries.append(text)
+            index_queries.append(i)
+            index_queries_task.append(tasks.index(jsonData['task']))           
+            i = i + 1
+    
+    
+    r = np.array([1 for j in range(index_queries.__len__())])
+    index_queries = np.array(index_queries)
+    index_queries_task = np.array(index_queries_task)
+    
+    target = sparse.coo_matrix((r,(index_queries,index_queries_task)),shape=(index_queries_task.size,index_queries_task.size))
+    
+    for task in tasks:  
+        file = 'orig_task' + task + '.txt'        #print(os.path.join("path", file))
+        with open(os.path.join('source', file),encoding=dataset_encoding) as f:
+            text = ""
+            for line in f:
+                text = text + line
+            documents.append(text)    
+    
+  
+    return documents,queries,target
+            
+
+if __name__ == '__main__':
+    
+    '''
+        INIT -- Variables
+    '''
+    size_percent = 50
+    dataset_name = "psa"    
+    '''
+        END -- Variables
+    '''
+    
+
+    '''
+        INIT -- dataset extraction
+    '''
+    
+    documents,queries = [],[] 
+    documents_index,queries_index = [],[] 
+    if dataset_name == "psa":
+        corpus_name, (queries, documents, dataset_target, dataset_encoding) = dataset_name, short_plagiarised_answers_extractor.load_as_ir_task()
+    elif dataset_name == "pan10":
+        corpus_name, (suspicious_info, source_info,target, dataset_encoding) = dataset_name, pan_plagiarism_corpus_2010_extractor.load_as_ir_task(allow_queries_without_relevants=False)
+    elif dataset_name == "pan11":
+        corpus_name, (suspicious_info, source_info,target, dataset_encoding) = dataset_name, pan_plagiarism_corpus_2011_extractor.load_as_ir_task(allow_queries_without_relevants=False)
+    elif "pan10" in dataset_name and "-samples" in dataset_name:
+        corpus_name, (suspicious_info, source_info,target, dataset_encoding) = dataset_name, pan_plagiarism_corpus_2010_extractor.load_sample_as_ir_task(sample_size)
+  
+    
+    
+    
+    
+    for nzi in nonzero_indexes[:1000]:
+        documents.append(suspicious_info.loc[nzi[1],'content'])
+        queries.append(source_info.loc[nzi[0],'content'])
+        documents_index.append(nzi[1])
+        queries_index.append(nzi[0])
+    
+    vectorizer = CountVectorizer(binary=True,min_df=1,ngram_range=(1,1))
+    all_fingerprints = vectorizer.fit_transform(queries+documents, None).T     
+    
+    '''
+        END -- dataset extraction
+    '''
+    recallNumber = []     
+    for i in range(documents_index.__sizeof__()):
+        similaritys_index,time = nearest_neighbors_LSH(all_fingerprints,i)
+        indexs_lsh = np.array([getRealIndex(documents_index, i) for i in gerArrayPercent(similaritys_index,50)])
+        pred = find(target[0,:])[1]
+        recallNumber.append(recall_score(pred, indexs_lsh))
+        
+    print(recallNumber)
+    
     
    
-
-if __name__ == "__main__":
-    
-    '''
-        experiments Variables
-    '''
-    corpus_name ="psa"
-#   corpus_name ="pan11"
-#   corpus_name ="pan10"
-    
-    if len(sys.argv) > 2:        
-        permutation_count_list = [int(sys.argv[1])]
-        part_number = int(sys.argv[2])
-    else:
-        permutation_count_list = [100]
-        part_number = 0
-        
-        
-    path_file = "results_%s/part_%d"%(corpus_name,part_number)    
-    if not os.path.exists(path_file):
-        os.makedirs(path_file)
-
-    '''
-        dataset extraction
-    '''
-
-    if corpus_name == "meter" or corpus_name == "psa":
-        if corpus_name == "meter":
-            dataset_documents,dataset_target,_,_,dataset_encoding = meter_extractor.load_as_pairs()
-            nonzero_indexes = np.argwhere(dataset_target)
-        elif corpus_name == "psa":
-            corpus_name, (dataset_documents,dataset_target,_,_,dataset_encoding) = "psa", short_plagiarised_answers_extractor.load_as_pairs()
-            nonzero_indexes = range(dataset_documents.shape[0])
-
-#         print(dataset_documents.shape)
-        
-        documents,queries = [],[] 
-        for i in nonzero_indexes:
-            queries.append(dataset_documents[i,0])
-            documents.append(dataset_documents[i,1])
-            if corpus_name == "meter":
-                queries[-1] = queries[-1].flatten()[0,0] 
-                documents[-1] = documents[-1].flatten()[0,0] 
-            
-        del dataset_documents,dataset_target,dataset_encoding    
-    else:
-        if corpus_name == "pan11" or corpus_name == "pan10":
-            if corpus_name == "pan11":
-                queries_, doc_index_, dataset_target, dataset_encoding = pan_plagiarism_corpus_2011_extractor.load_as_ir_task(language_filter = 'EN')
-            else:
-                queries_, doc_index_, dataset_target, dataset_encoding = pan_plagiarism_corpus_2010_extractor.load_as_ir_task(language_filter = 'EN')
-            nonzero_indexes = np.argwhere(dataset_target)
-#             print(dataset_target)
-#             print(nonzero_indexes)
-#             print(dataset_target.shape,len(nonzero_indexes))
-
-            documents,queries = [],[] 
-            for nzi in nonzero_indexes[:1000]:
-#                 print(nzi)
-                queries.append(queries_.loc[nzi[0],'content'])
-                documents.append(doc_index_.loc[nzi[1],'content'])
-            
-            del queries_, doc_index_,dataset_target,dataset_encoding
-    
-#     print(queries[-1])
-#     print(len(queries),len(documents))
-#     print(documents[0])
-#     exit()
-    
-    
-    '''
-        using scikit-learn : tokenization
-    '''    
-    vectorizer = CountVectorizer(binary=True,min_df=1,ngram_range=(1,1))
-    all_fingerprints = vectorizer.fit_transform(queries+documents, None).T
-#     vocabulary_indexes = [di for di in vectorizer.vocabulary_.values()]
-    del queries, documents,vectorizer
-    gc.collect()
-
-    print("all_fingerprints: ",all_fingerprints.shape)
-    
-    fname = "true_jaccard_sim_%s.pkl"%(corpus_name)
-    if(os.path.isfile(fname)):
-        print("Reading true_jaccard_similarity")
-        with open(fname,'rb') as f:
-            true_jaccard_sim = pickle.load(f)
-        
-    else:
-        true_jaccard_sim = pairwise_distances(np.vstack([i*all_fingerprints[i,:].toarray() for i in range(all_fingerprints.shape[0])]).T,metric='jaccard', n_jobs=1)
-        with open(fname,'wb') as f:
-            print("Writing true_jaccard_similarity")
-            pickle.dump(true_jaccard_sim, f)
-    
-    true_jaccard_sim_mean, true_jaccard_sim_std = true_jaccard_sim.mean(), true_jaccard_sim.std()
-    print('true_jaccard_sim (mean,std) =(',true_jaccard_sim_mean,',',true_jaccard_sim_std,')')
-
-    results = {}
-    '''
-        using scikit-learn : permutation
-            each permutation has one term-document matrix
-    '''    
-    permutation_repetition = 100
