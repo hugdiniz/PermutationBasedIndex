@@ -1,2 +1,0 @@
-,cv__analyzer,cv__binary,cv__lowercase,cv__min_df,cv__ngram_range,cv__norm,cv__stop_words,cv__tokenizer,cv__use_idf
-0,word,False,True,1,"(1, 1)",l1,english,,True

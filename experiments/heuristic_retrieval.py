@@ -682,20 +682,20 @@ if __name__ == '__main__':
         transforming bow to lsh representations (min-hasing, minmax-hashing, ...)
     '''
 
-    for i,linei in lsht_df_paramaters.iterrows():
-        print(linei)
-        print('xxxxxx')
-        lsh_transform(dataset_name,linei,i,dataset_encoding)
-
-    '''
-        nearest neighbor search (ranking)
-    '''
-
-    for i,linei in lshnns_df_paramaters.iterrows():
-        print("#"*10+" LSH N.N.S. "+"#"*10)
-        print(linei)
-        lsh_nearest_neighbors_search(dataset_name,linei,i,dataset_encoding)
-        print("-"*20)
+#     for i,linei in lsht_df_paramaters.iterrows():
+#         print(linei)
+#         print('xxxxxx')
+#         lsh_transform(dataset_name,linei,i,dataset_encoding)
+# 
+#     '''
+#         nearest neighbor search (ranking)
+#     '''
+# 
+#     for i,linei in lshnns_df_paramaters.iterrows():
+#         print("#"*10+" LSH N.N.S. "+"#"*10)
+#         print(linei)
+#         lsh_nearest_neighbors_search(dataset_name,linei,i,dataset_encoding)
+#         print("-"*20)
 
 #     for i,linei in nns_df_paramaters.iterrows():
 #         print("#"*10+" N.N.S. "+"#"*10)
