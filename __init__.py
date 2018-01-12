@@ -10,8 +10,19 @@ from sklearn.metrics.pairwise import pairwise_distances
 
 
 class PermutationBasedIndex(InvertedIndex):
-    def __init__(self, bucket_count, reference_set_size, prunning_size, ref_sel_threshold = 0.5):
-        self.bucket_count,self.reference_set_size,self.prunning_size,self.ref_sel_threshold = bucket_count,reference_set_size,prunning_size,ref_sel_threshold
+    def __init__(self, parameters):
+        
+        self.parameters = parameters
+        
+        if("prunning_size" in self.parameters):
+            self.prunning_size = self.parameters["prunning_size"]
+        else:
+            self.prunning_size = 1
+        
+        if("bucket_count" in self.parameters):
+            self.bucket_count = self.parameters["bucket_count"]
+        else:
+            self.bucket_count = 2
   
     
     def relative_ordered_list(self, X, d_index):
@@ -82,12 +93,12 @@ class PermutationBasedIndex(InvertedIndex):
         return scores, time_to_score
         
 class PBINearestNeighbors(InvertedIndexNearestNeighborsBaseEstimator):
-    def __init__(self, bucket_count, reference_set_size, prunning_size, ref_sel_threshold, n_neighbors, sort_neighbors):
-        self.bucket_count, self.reference_set_size, self.prunning_size, self.ref_sel_threshold = bucket_count, reference_set_size, prunning_size, ref_sel_threshold
+    def __init__(self,parameters = {}):
+        self.parameters = parameters
         InvertedIndexNearestNeighborsBaseEstimator.__init__(self, self.create_inverted_index(), n_neighbors, sort_neighbors)
 
     def create_inverted_index(self):
-        return PermutationBasedIndex(self.bucket_count, self.reference_set_size, self.prunning_size, self.ref_sel_threshold)    
+        return PermutationBasedIndex(self.parameters)    
         
     def set_params(self, **params):
         InvertedIndexNearestNeighborsBaseEstimator.set_params(self,**params)

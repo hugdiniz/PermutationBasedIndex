@@ -373,15 +373,15 @@ def lsh_nearest_neighbors_search(dataset_name, lshnns_parameters_dataframe_line,
         
         __nearest_neighbors_search(pipe_to_exec, source_file_path, file_path)
 
-def pbinearest_neighbors_search(dataset_name, nns_parameters_dataframe_line, nns_parameters_dataframe_line_index, encoding):
+def pbinearest_neighbors_search(dataset_name, nns_parameters_dataframe_line, nns_parameters_dataframe_line_index,parameters ,encoding):
     indexi = nns_parameters_dataframe_line['input__filename_index']
     source_file_path = h5_results_filename(dataset_name, 'cv', indexi)
-    file_path = h5_results_filename(dataset_name, '_caccc_pbinns', nns_parameters_dataframe_line_index)
+    file_path = h5_results_filename(dataset_name, '_pbinns', nns_parameters_dataframe_line_index)
 
     if os.path.exists(file_path):
         print(file_path,' already exists!')
     else:    
-        pipe_to_exec = Pipeline([('pbinns',PBINearestNeighbors(bucket_count=2, reference_set_size=2, prunning_size=1, ref_sel_threshold=0.5, n_neighbors=2, sort_neighbors=False))])
+        pipe_to_exec = Pipeline([('pbinns',PBINearestNeighbors(parameters))])
         pipe_to_exec.set_params(**nns_parameters_dataframe_line.drop('input__filename_index'))
         
         __nearest_neighbors_search(pipe_to_exec, source_file_path, file_path)
@@ -469,7 +469,7 @@ if __name__ == '__main__':
 #     dataset_name = "pan10"
 #    dataset_name = "pan11"
 
-    dataset_name,sample_size = "pan10-%d-samples",11 
+    dataset_name,sample_size = "pan10-%d-samples",10 
     dataset_name = dataset_name%(sample_size)
      
     cv_parameters = {
