@@ -34,7 +34,7 @@ class PermutationBasedIndex(InvertedIndex):
         self.collection_size = X.shape[0]
         self.ii = collections.defaultdict(lambda : collections.defaultdict(list))
         
-        self.reference_set_id, self.index_time = kmeans(X)
+        self.reference_set_id, self.index_time = kMedoids(X)
         self.index_features = X
          
         self.bij = np.empty((X.shape[0],self.reference_set_id.shape[0]),np.int)

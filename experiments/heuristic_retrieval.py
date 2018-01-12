@@ -376,7 +376,7 @@ def lsh_nearest_neighbors_search(dataset_name, lshnns_parameters_dataframe_line,
 def pbinearest_neighbors_search(dataset_name, nns_parameters_dataframe_line, nns_parameters_dataframe_line_index, encoding):
     indexi = nns_parameters_dataframe_line['input__filename_index']
     source_file_path = h5_results_filename(dataset_name, 'cv', indexi)
-    file_path = h5_results_filename(dataset_name, 'pbinns', nns_parameters_dataframe_line_index)
+    file_path = h5_results_filename(dataset_name, '_caccc_pbinns', nns_parameters_dataframe_line_index)
 
     if os.path.exists(file_path):
         print(file_path,' already exists!')
@@ -469,7 +469,7 @@ if __name__ == '__main__':
 #     dataset_name = "pan10"
 #    dataset_name = "pan11"
 
-    dataset_name,sample_size = "pan10-%d-samples",10 
+    dataset_name,sample_size = "pan10-%d-samples",11 
     dataset_name = dataset_name%(sample_size)
      
     cv_parameters = {
@@ -486,7 +486,7 @@ if __name__ == '__main__':
     
     lsht_parameters = {
         "lsht__n_permutations" : (6, 192),
-        "lsht__selection_function" : (MinMaxSymetricFPRAE(n_partitions=4)),
+        "lsht__selection_function" : (MinMaxSymetricFPRAE(n_partitions=4),),
         "lsht__n_jobs" : (-1,)                       
     }
     
