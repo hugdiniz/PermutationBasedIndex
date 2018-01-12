@@ -474,114 +474,25 @@ if __name__ == '__main__':
      
     cv_parameters = {
         "cv__analyzer" : ('word',),
-        "cv__ngram_range" : (
-                            (1,1),
-#                             (3,3), 
-#                             (5,5), 
-#                             (1,3),
-#                             (3,5),
-                             ),
-        "cv__tokenizer" : (
-                            None,
-#                            root_hypernym_tokenizer,    
-#                            just_nouns_adjectives_and_verbs,
-#                            just_nouns_adjectives_and_verbs_hypernyms,
-                           ),
+        "cv__ngram_range" : ( (1,1), ),
+        "cv__tokenizer" : (None,),
         "cv__lowercase" : (True,),
-        "cv__min_df" : (
-                         1,
-#                        2, 
-                        ),
+        "cv__min_df" : (1,),
         "cv__binary" : (False,),
         "cv__stop_words" : ('english',),
         "cv__use_idf" : (True,),
-        "cv__norm" : (
-                      'l1',
-#                       None,'l2' 
-                      ),
-        
+        "cv__norm" : ('l1',),        
     }
     
     lsht_parameters = {
-        "lsht__n_permutations" : (
-#                                 48, 96, 192, 384, 768, # min
-#                                 24, 48,  96, 192, 384, #minmax
-#                                 16, 32,  64, 128, 256, #csa_l
-#                                 12, 24,  48,  96, 192, #csa
-#                                 24,48,96,192, #minmax 
-				6, 192 #patitions (4)
-#								 12,24,48,96,192    #partitions (2)                                      
-#				3, 6, 12, 24, 48,
-#								 8,48, 	        #partitions (4)                                      
-#                                 3, 6, 12, 24, 48, #partitions (8)                                      
-#								 48,
-#                                96, #
-#                                384, #minmax
-#                                  192, #partitions (2)
-#				 12, #partitions(2,4,8)
-#				 6, #partitions(4,8)
-#			         3, #partitions(8)
-#				96, #partitions(4)
-#				48, #partitios(8)
-								 ),
-        "lsht__selection_function" : (
-#                                     min_hashing,
-#                                    minmax_hashing,
-#                                     minmaxCSALowerBound_hashing,
-#                                     minmaxCSAFullBound_hashing,
-#                                    justCSALowerBound_hashing,
-#                                    justCSAFullBound_hashing,
-
-#                                     MinMaxSymetricFPRAE(n_partitions=2),
-#                                   MinMaxSymetricFPRAP(n_partitions=2), 
-#                                     MinMaxSymetricDistributedFP(n_partitions=2),
-#                                     MinMaxAsymetricFPRAE(n_partitions=2),
-#                                     MinMaxAsymetricFPRAP(n_partitions=2),
-#                                     MinMaxAsymetricDistributedFP(n_partitions=2),
-
-                                     MinMaxSymetricFPRAE(n_partitions=4),
-#                                     MinMaxSymetricFPRAP(n_partitions=4),
-#                                     MinMaxSymetricDistributedFP(n_partitions=4),
-#                                     MinMaxAsymetricFPRAE(n_partitions=4),
-#                                     MinMaxAsymetricFPRAP(n_partitions=4),
-#                                     MinMaxAsymetricDistributedFP(n_partitions=4),
- 
-#                                     MinMaxSymetricFPRAE(n_partitions=8),
-#                                     MinMaxSymetricFPRAP(n_partitions=8),
-#                                     MinMaxSymetricDistributedFP(n_partitions=8),
-#                                     MinMaxAsymetricFPRAE(n_partitions=8),
-#                                     MinMaxAsymetricFPRAP(n_partitions=8),
-#                                     MinMaxAsymetricDistributedFP(n_partitions=8)
- 
-#                                     MinMaxSymetricFPRAE(n_partitions=16),
-#                                     MinMaxSymetricFPRAP(n_partitions=16),
-#                                     MinMaxSymetricDistributedFP(n_partitions=16),
-#                                     MinMaxAsymetricFPRAE(n_partitions=16),
-#                                     MinMaxAsymetricFPRAP(n_partitions=16),
-#                                     MinMaxAsymetricDistributedFP(n_partitions=16)
-                                      ),
-        "lsht__n_jobs" : (
-#                         1,
-#                         2,
-                        -1,
-                          )                       
+        "lsht__n_permutations" : (6, 192),
+        "lsht__selection_function" : (MinMaxSymetricFPRAE(n_partitions=4)),
+        "lsht__n_jobs" : (-1,)                       
     }
     
     lshnns_parameters = {
-        "lshnns__n_neighbors" : (
-        5,
-#                                 5,10
-#                                 22,10,
-#                                160, 1597, 3991, 7983, 11975, 15966 # PAN11(EN, just queries with relevants) 1%, 10%, 25%, 50%, 75%, 100%
-#                                1597, 3991, 7983, 11975 # PAN11(EN, just queries with relevants) 10%, 25%, 50%, 75%
-#                                 ,
-#                                 15,30
-#                                 15,22
-                                 ),
-        "lshnns__sort_neighbors" : (
-                                     False,
-#                                    True,
-                                    ),
+        "lshnns__n_neighbors" : (5,),
+        "lshnns__sort_neighbors" : (False,),
                          
     }
     
@@ -596,8 +507,7 @@ if __name__ == '__main__':
         "pbinns__bucket_count" : (50,),
         "pbinns__reference_set_size" : (40,),
         "pbinns__prunning_size" : (1,),
-        "pbinns__ref_sel_threshold" : (0.1, #0.2, 0.4, 0.5 
-                                       ),
+        "pbinns__ref_sel_threshold" : (0.1,),
     }
 
 
@@ -691,11 +601,11 @@ if __name__ == '__main__':
 #         nearest neighbor search (ranking)
 #     '''
 # 
-#     for i,linei in lshnns_df_paramaters.iterrows():
-#         print("#"*10+" LSH N.N.S. "+"#"*10)
-#         print(linei)
-#         lsh_nearest_neighbors_search(dataset_name,linei,i,dataset_encoding)
-#         print("-"*20)
+    for i,linei in lshnns_df_paramaters.iterrows():
+        print("#"*10+" LSH N.N.S. "+"#"*10)
+        print(linei)
+        lsh_nearest_neighbors_search(dataset_name,linei,i,dataset_encoding)
+        print("-"*20)
 
 #     for i,linei in nns_df_paramaters.iterrows():
 #         print("#"*10+" N.N.S. "+"#"*10)

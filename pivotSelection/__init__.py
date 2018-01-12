@@ -6,8 +6,9 @@ import random
 from time import time
 from sklearn.metrics.pairwise import pairwise_distances
 from sklearn.cluster import KMeans
+from random import sample
 
-def reference_set_selection(X,reference_set_size = 10,ref_sel_threshold = 0.5, metric_vector_distance = pairwise_cosine_distance):
+def random_select_pivot(X,parameters = {}):
     '''
         Distributed Selection: close reference points are neglected based on a threshold
          
@@ -16,20 +17,59 @@ def reference_set_selection(X,reference_set_size = 10,ref_sel_threshold = 0.5, m
     '''
         randomly selects the first reference point
     '''
-#         set_id = sample(range(X.shape[0]),1)
+    if("k" in parameters):
+        k = parameters["k"]
+    else:
+        k = 10
+    
+    t0 = time()
+    
+    set_id = sample(range(X.shape[0]),k)
+    
+    return X[set_id,:],time()-t0
+
+def reference_set_selection(X,parameters = {}):
+    '''
+        Distributed Selection: close reference points are neglected based on a threshold
+         
+    ''' 
+
+    '''
+        randomly selects the first reference point
+    '''
+    
+    if("k" in parameters):
+        k = parameters["k"]
+    else:
+        k = 10
+    if("distance_metric" in parameters):
+        f_distance_metric = parameters["distance_metric"]
+    else:
+        f_distance_metric = pairwise_cosine_distance
+    
+    if("reference_set_size" in parameters):
+        reference_set_size = parameters["reference_set_size"]
+    else:
+        reference_set_size = 10
+    
+    if("ref_sel_threshold" in parameters):
+        ref_sel_threshold = parameters["ref_sel_threshold"]
+    else:
+        ref_sel_threshold = 0.5
+    
     t0 = time()
     
     set_id = [ceil(X.shape[0]/2)]
 
     current_id = set_id[0]
     
-    first_reference = np.nonzero(metric_vector_distance(X[current_id,:],X) > ref_sel_threshold)[1]
+    first_reference = np.nonzero(f_distance_metric(X[current_id,:],X) > ref_sel_threshold)[1]
 
     i = 0        
     while len(set_id) < reference_set_size and i < len(first_reference):
         current_id = first_reference[i]
         i += 1
-        current_reference = np.nonzero(metric_vector_distance(X[current_id,:],X[set_id,:]) < ref_sel_threshold)[1]
+        current_reference = np.nonzero(f_distance_metric(X[current_id,:],X[set_id,:]) < ref_sel_threshold)[1]
         
         if len(current_reference) == 0:
             set_id.append(current_id)
@@ -43,11 +83,27 @@ def reference_set_selection(X,reference_set_size = 10,ref_sel_threshold = 0.5, m
 '''
     Bauckhage C. Numpy/scipy Recipes for Data Science: k-Medoids Clustering[R]. Technical Report, University of Bonn, 2015.
 '''
-def kMedoids(X, k = 10, tmax=100):
+def kMedoids(X, parameters = {}):
     
-    D = pairwise_cosine_distance(X)
+    if("distance_metric" in parameters):
+        f_distance_metric = parameters["distance_metric"]
+    else:
+        f_distance_metric = pairwise_cosine_distance
+    
+    if("k" in parameters):
+        k = parameters["k"]
+    else:
+        k = 10
+    
+    if("tmax" in parameters):
+        tmax = parameters["tmax"]
+    else:
+        tmax = 100
+    
     t0 = time()
-    # determine dimensions of distance matrix D
+    
+    D = f_distance_metric(X)
+       
     m, n = D.shape
 
     if k > n:
@@ -85,7 +141,7 @@ def kMedoids(X, k = 10, tmax=100):
 
    
     # return results
-    return D[M],time()-t0
+    return X[M],time()-t0
 
 
 
@@ -96,12 +152,22 @@ def kmeans(X, parameters = {}):
         f_distance_metric = parameters["distance_metric"]
     else:
         f_distance_metric = pairwise_cosine_distance
+        
+    if("k" in parameters):
+        k = parameters["k"]
+    else:
+        k = 10
+        
+    if("random_state" in parameters):
+        random_state = parameters["random_state"]
+    else:
+        random_state = 0
     
         
     #D = f_distance_metric(X).T
         
     
-    kmeans = KMeans(n_clusters=2, random_state=0).fit(X)
+    kmeans = KMeans(n_clusters=k, random_state=random_state).fit(X)
     
     M = kmeans.cluster_centers_
     
