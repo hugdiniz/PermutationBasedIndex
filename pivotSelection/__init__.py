@@ -39,19 +39,13 @@ def reference_set_selection(X,parameters = {}):
     '''
     
     if("k" in parameters):
-        k = parameters["k"]
+        reference_set_size = parameters["k"]
     else:
-        k = 10
+        reference_set_size = 25
     if("distance_metric" in parameters):
         f_distance_metric = parameters["distance_metric"]
     else:
-        f_distance_metric = pairwise_cosine_distance
-    
-    if("reference_set_size" in parameters):
-        reference_set_size = parameters["reference_set_size"]
-    else:
-        reference_set_size = 10
-    
+        f_distance_metric = pairwise_cosine_distance 
     if("ref_sel_threshold" in parameters):
         ref_sel_threshold = parameters["ref_sel_threshold"]
     else:

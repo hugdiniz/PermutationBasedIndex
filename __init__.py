@@ -1,5 +1,5 @@
 from PermutationBasedIndex.distance_metric import pairwise_cosine_distance
-from PermutationBasedIndex.pivotSelection import reference_set_selection, kMedoids, kmeans
+from PermutationBasedIndex.pivotSelection import reference_set_selection, kMedoids, kmeans,random_select_pivot
 import collections
 from math import ceil, sqrt, floor
 import numpy as np
@@ -7,6 +7,7 @@ from scipy import argsort
 from locality_sensitive_hashing import InvertedIndex,InvertedIndexNearestNeighborsBaseEstimator
 from time import time
 from sklearn.metrics.pairwise import pairwise_distances
+from symbol import parameters
 
 
 class PermutationBasedIndex(InvertedIndex):
@@ -23,29 +24,40 @@ class PermutationBasedIndex(InvertedIndex):
             self.bucket_count = self.parameters["bucket_count"]
         else:
             self.bucket_count = 2
+            
+        if("pbinns__pivot_parameters" in self.parameters):
+            self.pivot_parameters = self.parameters["pbinns__pivot_parameters"]
+        else:
+            self.pivot_parameters = {}
   
     
     def relative_ordered_list(self, X, d_index):
         
         t0 = time()
         
-#         print(X.shape)
         distances = pairwise_distances(X[d_index,:],self.reference_set_id, metric='cosine', n_jobs=1)
         
         lr = argsort(distances,axis=1)
         return lr[:,:self.prunning_size], time() - t0
     
-    def index_collection(self,X):
-        """ inverted index (ii) creation 
+    
+    """ inverted index (ii) creation 
 
         Parameters
         ----------
         X : sparse matrix, [n_samples, n_features]
-        """
+    """
+    def index_collection(self,X):        
+       
+        if("pivot_selection_function" in self.pivot_parameters):
+            pivot_selection_function = self.pivot_parameters["pivot_selection_function"]
+        else:
+           pivot_selection_function = kMedoids  
+           
         self.collection_size = X.shape[0]
         self.ii = collections.defaultdict(lambda : collections.defaultdict(list))
         
-        self.reference_set_id, self.index_time = kMedoids(X)
+        self.reference_set_id, self.index_time = pivot_selection_function(X,self.pivot_parameters)
         self.index_features = X
          
         self.bij = np.empty((X.shape[0],self.reference_set_id.shape[0]),np.int)
@@ -95,7 +107,17 @@ class PermutationBasedIndex(InvertedIndex):
 class PBINearestNeighbors(InvertedIndexNearestNeighborsBaseEstimator):
     def __init__(self,parameters = {}):
         self.parameters = parameters
-        InvertedIndexNearestNeighborsBaseEstimator.__init__(self, self.create_inverted_index(), n_neighbors, sort_neighbors)
+        if("n_neighbors" in self.parameters):
+            self.n_neighbors = self.parameters["n_neighbors"]
+        else:
+            self.n_neighbors = 1
+        
+        if("sort_neighbors" in self.parameters):
+            self.sort_neighbors = self.parameters["sort_neighbors"]
+        else:
+            self.sort_neighbors = False
+        
+        InvertedIndexNearestNeighborsBaseEstimator.__init__(self, self.create_inverted_index(), self.n_neighbors, self.sort_neighbors)
 
     def create_inverted_index(self):
         return PermutationBasedIndex(self.parameters)    
