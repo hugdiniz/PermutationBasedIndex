@@ -30,7 +30,7 @@ if __name__ == '__main__':
     dataset_name = "pan11"
 
 #    dataset_name,sample_size = "pan10-%d-samples",10 
-    dataset_name = dataset_name%(sample_size)
+#    dataset_name = dataset_name%(sample_size)
     queries_percentage = 25
      
     cv_parameters = {
