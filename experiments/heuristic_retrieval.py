@@ -31,6 +31,7 @@ if __name__ == '__main__':
 
     dataset_name,sample_size = "pan10-%d-samples",10 
     dataset_name = dataset_name%(sample_size)
+    queries_percentage = 90
      
     cv_parameters = {
         "cv__analyzer" : ('word',),
@@ -78,16 +79,27 @@ if __name__ == '__main__':
         "pbinns__n_neighbors" : nns_parameters['nns__n_neighbors'],
         "pbinns__sort_neighbors" : nns_parameters['nns__sort_neighbors'],
         "pbinns__bucket_count" : (2,),
-        "pbinns__prunning_size" : (10,),
+        "pbinns__prunning_size" : (5,),
         "pbinns__pivot_parameters" : (
         
         json.dumps({          
             "pivot_selection_function" :kMedoids.__name__ ,
-            "k" : 10,            
+            "k" : 10,
+            "tmax":100,            
+        }),
+         json.dumps({            
+             "pivot_selection_function" :kmeans.__name__ ,
+             "k" : 10,            
+         }),
+        json.dumps({          
+            "pivot_selection_function" :random_select_pivot.__name__ ,
+            "k" : 10,
+                        
         }),
         json.dumps({            
-            "pivot_selection_function" :kmeans.__name__ ,
-            "k" : 10,            
+            "pivot_selection_function" :reference_set_selection.__name__ ,
+            "k" : 10,
+            "ref_sel_threshold" : 0.5,            
         })
         ,),
         
@@ -149,11 +161,12 @@ if __name__ == '__main__':
         corpus_name, (suspicious_info, source_info,target, dataset_encoding) = dataset_name, pan_plagiarism_corpus_2010_extractor.load_sample_as_ir_task(sample_size, language_filter="EN")
 
     print('queries:',suspicious_info.shape,' Documents:',source_info.shape)
-
-
-    documents = Parallel(n_jobs=-1,backend="threading",verbose=1)(delayed(encode_dataframe_content)(si, dataset_encoding) for si in source_info['content'].values)
-    queries = Parallel(n_jobs=-1,backend="threading",verbose=1)(delayed(encode_dataframe_content)(si, dataset_encoding) for si in suspicious_info['content'].values)
+    queries_number = int((suspicious_info.shape[0] / 100) * queries_percentage)
     
+    
+    documents = Parallel(n_jobs=-1,backend="threading",verbose=1)(delayed(encode_dataframe_content)(si, dataset_encoding) for si in source_info['content'].values)
+    queries = Parallel(n_jobs=-1,backend="threading",verbose=1)(delayed(encode_dataframe_content)(si, dataset_encoding) for si in suspicious_info['content'].values)[:queries_number]
+    target = target[:queries_number,:]
     del suspicious_info, source_info
     
     print(nns_df_paramaters)
@@ -166,7 +179,7 @@ if __name__ == '__main__':
     '''
 
     for i,linei in cv_df_paramaters.iterrows():
-        tokenize_by_parameters(documents,queries,target,dataset_name,linei,i,dataset_encoding)
+        tokenize_by_parameters(documents,queries,target,dataset_name,linei,i,dataset_encoding,dataset_encoding)
 
     queries_count,documents_count = target.shape
     del documents, queries, target

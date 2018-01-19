@@ -22,6 +22,7 @@ from pprint import pprint
 from PermutationBasedIndex import PBINearestNeighbors
 from PermutationBasedIndex.pivotSelection import reference_set_selection, kMedoids, kmeans,random_select_pivot
 
+from locality_sensitive_hashing import LSHTransformer, LSHIINearestNeighbors, InvertedIndexNearestNeighbors
  
 def encode_dataframe_content(dataframe_contenti, encoding):
     return dataframe_contenti.encode(encoding)    
@@ -159,7 +160,7 @@ def just_nouns_adjectives_and_verbs_hypernyms(doc):
     return token_list
  
     
-def tokenize_by_parameters(documents,queries,target,dataset_name, cv_parameters_dataframe_line,cv_parameters_dataframe_line_index,encoding):
+def tokenize_by_parameters(documents,queries,target,dataset_name, cv_parameters_dataframe_line,cv_parameters_dataframe_line_index,encoding,dataset_encoding):
     '''
         tokenize and store results 
     '''
