@@ -65,7 +65,7 @@ if __name__ == '__main__':
     }
     
     lshnns_parameters = {
-        "lshnns__n_neighbors" : (5,),
+        "lshnns__n_neighbors" : (7983,),
         "lshnns__sort_neighbors" : (False,),
                          
     }
