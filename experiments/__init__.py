@@ -369,13 +369,21 @@ def lsh_nearest_neighbors_search(dataset_name, lshnns_parameters_dataframe_line,
 def pbinearest_neighbors_search(dataset_name, nns_parameters_dataframe_line, nns_parameters_dataframe_line_index, encoding):
     indexi = nns_parameters_dataframe_line['input__filename_index']
     nns_parameters_dataframe_line["pbinns__pivot_parameters"] = load_pivot_selection_parameters(nns_parameters_dataframe_line["pbinns__pivot_parameters"])
-    source_file_path = h5_results_filename(dataset_name, 'cv', indexi)
-    file_path = h5_results_filename(dataset_name, 'pbinns', nns_parameters_dataframe_line_index)
+    
+    if "pbinns__using_lsh" in nns_parameters_dataframe_line and nns_parameters_dataframe_line["pbinns__using_lsh"]:        
+        
+        source_file_path = h5_results_filename(dataset_name, 'lsht', indexi)
+        technique_name = "lsh_pbinns"
+    else:
+        source_file_path = h5_results_filename(dataset_name, 'cv', indexi)
+        technique_name = "pbinns"
+         
+    file_path = h5_results_filename(dataset_name, technique_name, nns_parameters_dataframe_line_index)
 
     if os.path.exists(file_path):
         print(file_path,' already exists!')
     else:    
-        pipe_to_exec = Pipeline([('pbinns',PBINearestNeighbors(nns_parameters_dataframe_line))])
+        pipe_to_exec = Pipeline([(technique_name,PBINearestNeighbors(nns_parameters_dataframe_line))])
         #pipe_to_exec.set_params(**nns_parameters_dataframe_line.drop('input__filename_index'))
         
         __nearest_neighbors_search(pipe_to_exec, source_file_path, file_path)
@@ -464,7 +472,7 @@ def load_pivot_selection_parameters(json_parameters):
     
     return parameters_pivot_selection
 
-def print_pbi(cv_df_paramaters, pbinns_df_paramaters,dataset_name,documents_count,queries_count,nns_index):
+def print_pbi(cv_df_paramaters, pbinns_df_paramaters,dataset_name,documents_count,queries_count):
     
     today = datetime.now()
     today = today.strftime('%Y-%m-%d_%H-%M-%S_')
@@ -474,10 +482,15 @@ def print_pbi(cv_df_paramaters, pbinns_df_paramaters,dataset_name,documents_coun
     for rowi in b.iterrows():
         cv_index = rowi[1]['input__filename_index']
         pbinns_index = rowi[0]
+        
+        if "pbinns__using_lsh" in rowi[1] and rowi[1]["pbinns__using_lsh"]:              
+            technique_name = "lsh_pbinns"
+        else:            
+            technique_name = "pbinns"
    
         cv_file_path = h5_results_filename(dataset_name, 'cv', cv_index).replace('results','time')
-        pbinns_file_path = h5_results_filename(dataset_name, 'pbinns', pbinns_index).replace('results','results_evaluation')
-        pbinns_time_file_path = h5_results_filename(dataset_name, 'pbinns', pbinns_index).replace('results','time')
+        pbinns_file_path = h5_results_filename(dataset_name, technique_name, pbinns_index).replace('results','results_evaluation')
+        pbinns_time_file_path = h5_results_filename(dataset_name, technique_name, pbinns_index).replace('results','time')
   
         approach_precisions = hdf_to_sparse_matrix('precisions', pbinns_file_path)
         approach_recalls = hdf_to_sparse_matrix('recalls', pbinns_file_path)
@@ -498,23 +511,23 @@ def print_pbi(cv_df_paramaters, pbinns_df_paramaters,dataset_name,documents_coun
         with open(cv_file_path.replace('time.h5', 'vocabulary.pkl'),'rb') as f:
             b.loc[pbinns_index,'vocabulary_size'] = len(pickle.load(f))
          
-        b.loc[nns_index,'indexing_mean_time'] = 0
-        b.loc[nns_index,'querying_mean_time'] = 0
+        b.loc[pbinns_index,'indexing_mean_time'] = 0
+        b.loc[pbinns_index,'querying_mean_time'] = 0
  
         cv_time_dataframe = pd.read_hdf(cv_file_path, 'time_dataframe')
         b.loc[pbinns_index,'cv_documents_mean_time'] = cv_time_dataframe.loc[0,'documents_mean_time'] 
         b.loc[pbinns_index,'cv_queries_mean_time'] = cv_time_dataframe.loc[0,'queries_mean_time']
           
-        b.loc[nns_index,'indexing_mean_time'] += b.loc[pbinns_index,'cv_documents_mean_time'] 
-        b.loc[nns_index,'querying_mean_time'] += b.loc[pbinns_index,'cv_queries_mean_time']
+        b.loc[pbinns_index,'indexing_mean_time'] += b.loc[pbinns_index,'cv_documents_mean_time'] 
+        b.loc[pbinns_index,'querying_mean_time'] += b.loc[pbinns_index,'cv_queries_mean_time']
         del cv_time_dataframe 
   
         pbinns_time_dataframe = pd.read_hdf(pbinns_time_file_path, 'time_dataframe')
         b.loc[pbinns_index,'pbinns_documents_mean_time'] = pbinns_time_dataframe.loc[0,'documents_mean_time'] 
         b.loc[pbinns_index,'pbinns_queries_mean_time'] = pbinns_time_dataframe.loc[0,'queries_mean_time']
           
-        b.loc[nns_index,'indexing_mean_time'] += b.loc[pbinns_index,'pbinns_documents_mean_time'] 
-        b.loc[nns_index,'querying_mean_time'] += b.loc[pbinns_index,'pbinns_queries_mean_time']
+        b.loc[pbinns_index,'indexing_mean_time'] += b.loc[pbinns_index,'pbinns_documents_mean_time'] 
+        b.loc[pbinns_index,'querying_mean_time'] += b.loc[pbinns_index,'pbinns_queries_mean_time']
         del pbinns_time_dataframe 
   
         print('pbinns:')
