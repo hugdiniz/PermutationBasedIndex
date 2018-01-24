@@ -464,7 +464,7 @@ def load_pivot_selection_parameters(json_parameters):
     
     return parameters_pivot_selection
 
-def print_pbi(cv_df_paramaters, pbinns_df_paramaters,dataset_name,documents_count,queries_count,nns_index):
+def print_pbi(cv_df_paramaters, pbinns_df_paramaters,dataset_name,documents_count,queries_count):
     
     today = datetime.now()
     today = today.strftime('%Y-%m-%d_%H-%M-%S_')
@@ -498,23 +498,23 @@ def print_pbi(cv_df_paramaters, pbinns_df_paramaters,dataset_name,documents_coun
         with open(cv_file_path.replace('time.h5', 'vocabulary.pkl'),'rb') as f:
             b.loc[pbinns_index,'vocabulary_size'] = len(pickle.load(f))
          
-        b.loc[nns_index,'indexing_mean_time'] = 0
-        b.loc[nns_index,'querying_mean_time'] = 0
+        b.loc[pbinns_index,'indexing_mean_time'] = 0
+        b.loc[pbinns_index,'querying_mean_time'] = 0
  
         cv_time_dataframe = pd.read_hdf(cv_file_path, 'time_dataframe')
         b.loc[pbinns_index,'cv_documents_mean_time'] = cv_time_dataframe.loc[0,'documents_mean_time'] 
         b.loc[pbinns_index,'cv_queries_mean_time'] = cv_time_dataframe.loc[0,'queries_mean_time']
           
-        b.loc[nns_index,'indexing_mean_time'] += b.loc[pbinns_index,'cv_documents_mean_time'] 
-        b.loc[nns_index,'querying_mean_time'] += b.loc[pbinns_index,'cv_queries_mean_time']
+        b.loc[pbinns_index,'indexing_mean_time'] += b.loc[pbinns_index,'cv_documents_mean_time'] 
+        b.loc[pbinns_index,'querying_mean_time'] += b.loc[pbinns_index,'cv_queries_mean_time']
         del cv_time_dataframe 
   
         pbinns_time_dataframe = pd.read_hdf(pbinns_time_file_path, 'time_dataframe')
         b.loc[pbinns_index,'pbinns_documents_mean_time'] = pbinns_time_dataframe.loc[0,'documents_mean_time'] 
         b.loc[pbinns_index,'pbinns_queries_mean_time'] = pbinns_time_dataframe.loc[0,'queries_mean_time']
           
-        b.loc[nns_index,'indexing_mean_time'] += b.loc[pbinns_index,'pbinns_documents_mean_time'] 
-        b.loc[nns_index,'querying_mean_time'] += b.loc[pbinns_index,'pbinns_queries_mean_time']
+        b.loc[pbinns_index,'indexing_mean_time'] += b.loc[pbinns_index,'pbinns_documents_mean_time'] 
+        b.loc[pbinns_index,'querying_mean_time'] += b.loc[pbinns_index,'pbinns_queries_mean_time']
         del pbinns_time_dataframe 
   
         print('pbinns:')
