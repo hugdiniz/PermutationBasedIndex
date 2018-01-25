@@ -27,10 +27,10 @@ if __name__ == '__main__':
     '''
 #    dataset_name = "psa"
 #     dataset_name = "pan10"
-    dataset_name = "pan11"
+#    dataset_name = "pan11"
 
-    #dataset_name,sample_size = "pan10-%d-samples",10 
-    #dataset_name = dataset_name%(sample_size)
+    dataset_name,sample_size = "pan10-%d-samples",10 
+    dataset_name = dataset_name%(sample_size)
     queries_percentage = 100
      
     cv_parameters = {
@@ -133,6 +133,8 @@ if __name__ == '__main__':
 #        print('xxxxxxxxxxxxxxxxxxxx')
 #    exit() 
 
+   
+
     '''
         permutation-Based Index(PBI) nearest neighbor search
     '''    
@@ -187,6 +189,21 @@ if __name__ == '__main__':
     '''
         nearest neighbor search (ranking)
     '''
+      
+#     for i,linei in lsht_df_paramaters.iterrows():
+#         print(linei)
+#         print('xxxxxx')
+#         lsh_transform(dataset_name,linei,i,dataset_encoding)
+
+    '''
+        nearest neighbor search (ranking)
+    '''
+
+    for i,linei in lshnns_df_paramaters.iterrows():
+        print("#"*10+" LSH N.N.S. "+"#"*10)
+        print(linei)
+        lsh_nearest_neighbors_search(dataset_name,linei,i,dataset_encoding)
+        print("-"*20)
     
     for i,linei in pbinns_df_paramaters.iterrows():
         print("#"*10+" PBI N.N.S. "+"#"*10)
