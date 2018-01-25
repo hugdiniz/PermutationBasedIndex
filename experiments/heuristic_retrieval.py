@@ -78,8 +78,8 @@ if __name__ == '__main__':
     pbinns_parameters = {
         "pbinns__n_neighbors" : nns_parameters['nns__n_neighbors'],
         "pbinns__sort_neighbors" : nns_parameters['nns__sort_neighbors'],
-        "pbinns__bucket_count" : (2,),
-        "pbinns__prunning_size" : (5,),
+        "pbinns__bucket_count" : (25,),
+        "pbinns__prunning_size" : (100,),
         "pbinns__pivot_parameters" : (
         
         json.dumps({          
