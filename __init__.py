@@ -107,8 +107,8 @@ class PermutationBasedIndex(InvertedIndex):
 class PBINearestNeighbors(InvertedIndexNearestNeighborsBaseEstimator):
     def __init__(self,parameters = {}):
         self.parameters = parameters
-        if("n_neighbors" in self.parameters):
-            self.n_neighbors = self.parameters["n_neighbors"]
+        if("pbinns__n_neighbors" in self.parameters):
+            self.n_neighbors = self.parameters["pbinns__n_neighbors"]
         else:
             self.n_neighbors = 1
         
