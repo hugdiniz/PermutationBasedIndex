@@ -199,11 +199,11 @@ if __name__ == '__main__':
         nearest neighbor search (ranking)
     '''
 
-    for i,linei in lshnns_df_paramaters.iterrows():
-        print("#"*10+" LSH N.N.S. "+"#"*10)
-        print(linei)
-        lsh_nearest_neighbors_search(dataset_name,linei,i,dataset_encoding)
-        print("-"*20)
+#     for i,linei in lshnns_df_paramaters.iterrows():
+#         print("#"*10+" LSH N.N.S. "+"#"*10)
+#         print(linei)
+#         lsh_nearest_neighbors_search(dataset_name,linei,i,dataset_encoding)
+#         print("-"*20)
     
     for i,linei in pbinns_df_paramaters.iterrows():
         print("#"*10+" PBI N.N.S. "+"#"*10)
