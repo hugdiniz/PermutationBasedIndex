@@ -15,13 +15,13 @@ class PermutationBasedIndex(InvertedIndex):
         
         self.parameters = parameters
         
-        if("prunning_size" in self.parameters):
-            self.prunning_size = self.parameters["prunning_size"]
+        if("pbinns__prunning_size" in self.parameters):
+            self.prunning_size = self.parameters["pbinns__prunning_size"]
         else:
             self.prunning_size = 1
         
-        if("bucket_count" in self.parameters):
-            self.bucket_count = self.parameters["bucket_count"]
+        if("pbinns__bucket_count" in self.parameters):
+            self.bucket_count = self.parameters["pbinns__bucket_count"]
         else:
             self.bucket_count = 2
             
