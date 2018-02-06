@@ -525,3 +525,21 @@ def print_pbi(cv_df_paramaters, pbinns_df_paramaters,dataset_name,documents_coun
   
     b.to_csv('%s%s_pbi_results.csv'%(today,dataset_name),sep='\t')
 
+
+def print_technique(cv_index,pbinns_index,dataset_name):
+    cv_file_path = h5_results_filename(dataset_name, 'cv', cv_index).replace('results','time')
+    pbinns_file_path = h5_results_filename(dataset_name, 'pbinns', pbinns_index).replace('results','results_evaluation')
+    pbinns_time_file_path = h5_results_filename(dataset_name, 'pbinns', pbinns_index).replace('results','time')
+    
+    approach_precisions = hdf_to_sparse_matrix('precisions', pbinns_file_path)
+    approach_recalls = hdf_to_sparse_matrix('recalls', pbinns_file_path)
+    average_precision = hdf_to_sparse_matrix('average_precisions', pbinns_file_path).todense()
+    
+    cv_time_dataframe = pd.read_hdf(cv_file_path, 'time_dataframe')
+    pbinns_time_dataframe = pd.read_hdf(pbinns_time_file_path, 'time_dataframe')
+        
+    print('pbinns:')
+    print("MAP = %4.2f[+-%4.2f]"%(average_precision.mean(),average_precision.std()))
+    print("recall = %4.2f[+-%4.2f]"%(approach_recalls[:,-1].todense().mean(),approach_recalls[:,-1].todense().std()))
+    print("index time = %4.4f"%(cv_time_dataframe.loc[0,'documents_mean_time']+pbinns_time_dataframe.loc[0,'documents_mean_time']))
+    print("query time = %4.4f"%(cv_time_dataframe.loc[0,'queries_mean_time']+pbinns_time_dataframe.loc[0,'queries_mean_time']))
