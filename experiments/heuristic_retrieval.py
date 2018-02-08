@@ -82,11 +82,11 @@ if __name__ == '__main__':
         "pbinns__prunning_size" : (ceil(nns_parameters['nns__n_neighbors'][0]*25/100),),
         "pbinns__pivot_parameters" : (
             
-        json.dumps({          
-            "pivot_selection_function" :kMedoids.__name__ ,
-            "k" : ceil(nns_parameters['nns__n_neighbors'][0]*25/100),
-            "tmax":10000,            
-        }),
+#         json.dumps({          
+#             "pivot_selection_function" :kMedoids.__name__ ,
+#             "k" : ceil(nns_parameters['nns__n_neighbors'][0]*25/100),
+#             "tmax":10000,            
+#         }),
 #          
 #         json.dumps({          
 #             "pivot_selection_function" :kMedoids.__name__ ,
@@ -113,7 +113,7 @@ if __name__ == '__main__':
 #          
         json.dumps({          
             "pivot_selection_function" :kmeans.__name__ ,
-            "k" : ceil(nns_parameters['nns__n_neighbors'][0]*25/100),                       
+            "k" : 30,                       
         }),
 #          
 #         json.dumps({          
@@ -131,10 +131,10 @@ if __name__ == '__main__':
 #             "k" : ceil(nns_parameters['nns__n_neighbors'][0]*10/100),                     
 #         }),
 #          
-        json.dumps({          
-            "pivot_selection_function" :random_select_pivot.__name__ ,
-            "k" : ceil(nns_parameters['nns__n_neighbors'][0]*25/100),                       
-        }),
+#         json.dumps({          
+#             "pivot_selection_function" :random_select_pivot.__name__ ,
+#             "k" : ceil(nns_parameters['nns__n_neighbors'][0]*25/100),                       
+#         }),
 #          
 #         json.dumps({          
 #             "pivot_selection_function" :random_select_pivot.__name__ ,
@@ -146,11 +146,11 @@ if __name__ == '__main__':
 #             "k" : ceil(nns_parameters['nns__n_neighbors'][0]*75/100),                       
 #         }),      
 #                                       
-        json.dumps({            
-            "pivot_selection_function" :reference_set_selection.__name__ ,
-            "k" : ceil(nns_parameters['nns__n_neighbors'][0]*25/100),
-            "ref_sel_threshold" : 0.75,            
-        }),
+#         json.dumps({            
+#             "pivot_selection_function" :reference_set_selection.__name__ ,
+#             "k" : ceil(nns_parameters['nns__n_neighbors'][0]*25/100),
+#             "ref_sel_threshold" : 0.75,            
+#         }),
 #         json.dumps({            
 #             "pivot_selection_function" :reference_set_selection.__name__ ,
 #             "k" : ceil(nns_parameters['nns__n_neighbors'][0]*75/100),
