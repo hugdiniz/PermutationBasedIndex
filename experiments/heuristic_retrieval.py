@@ -26,12 +26,17 @@ if __name__ == '__main__':
         storing it as pandas Dataframes on hdf
     '''
 #    dataset_name = "psa"
-#     dataset_name = "pan10"
-    dataset_name = "pan11"
+#    dataset_name = "pan10"
+#    dataset_name = "pan11"
+
 
     #dataset_name,sample_size = "pan10-%d-samples",10 
     #dataset_name = dataset_name%(sample_size)
-    queries_percentage = 25
+    
+
+    dataset_name,sample_size = "pan10-%d-samples",10 
+    dataset_name = dataset_name%(sample_size)
+    queries_percentage = 100
      
     cv_parameters = {
         "cv__analyzer" : ('word',),
@@ -55,7 +60,7 @@ if __name__ == '__main__':
     }
     
     lsht_parameters = {
-        "lsht__n_permutations" : (192,),
+        "lsht__n_permutations" : (6,),
         "lsht__selection_function" : (
                                      MinMaxSymetricFPRAE(n_partitions=4),                                  
                                       ),
@@ -65,7 +70,7 @@ if __name__ == '__main__':
     }
     
     lshnns_parameters = {
-        "lshnns__n_neighbors" : (7983,),
+        "lshnns__n_neighbors" : (20,),
         "lshnns__sort_neighbors" : (False,),
                          
     }
@@ -80,6 +85,7 @@ if __name__ == '__main__':
         "pbinns__sort_neighbors" : nns_parameters['nns__sort_neighbors'],
         "pbinns__bucket_count" : (50,),
         "pbinns__prunning_size" : (ceil(nns_parameters['nns__n_neighbors'][0]*25/100),),
+        "pbinns__using_lsh" : (False,),
         "pbinns__pivot_parameters" : (
             
 #         json.dumps({          
@@ -177,26 +183,19 @@ if __name__ == '__main__':
 #             "k" : ceil(nns_parameters['nns__n_neighbors'][0]*75/100),
 #             "ref_sel_threshold" : 0.75,            
 #         }),
-                
-        
-    ),
-        
-    }
+),
+                         }
 
 
     '''
         storing parameters dataframes 
     '''
-
+      
     parameters_sequence = [('cv',cv_parameters),('lsht',lsht_parameters),('lshnns',lshnns_parameters)]
     parameters_grids_list = generate_or_load_parameters_grids(parameters_sequence,dataset_name)
 
     cv_df_paramaters, lsht_df_paramaters, lshnns_df_paramaters = parameters_grids_list
 
-#     for i in parameters_grids_list:
-#         print(i)             
-#         print('xxxxxxxxxxxxxxxxxxxx')
-#     exit()
     
     '''
         nearest neighbor search without LSH
@@ -206,27 +205,13 @@ if __name__ == '__main__':
 
     nns_df_paramaters = parameters_grids_list[1]
 
-#    for i in parameters_grids_list:
-#        print(i)             
-#        print('xxxxxxxxxxxxxxxxxxxx')
-#    exit() 
-
-   
-
     '''
         permutation-Based Index(PBI) nearest neighbor search
-    '''    
-
+    '''  
     parameters_sequence = [('cv',cv_parameters),('pbinns',pbinns_parameters)]
     parameters_grids_list = generate_or_load_parameters_grids(parameters_sequence,dataset_name)
 
-    pbinns_df_paramaters = parameters_grids_list[1]
-    
-#     for i in parameters_grids_list:
-#         print(i)             
-#         print('xxxxxxxxxxxxxxxxxxxx')
-#     exit()
-    
+    pbinns_df_paramaters = parameters_grids_list[1]    
 
     '''
         dataset extraction
@@ -249,15 +234,10 @@ if __name__ == '__main__':
     target = target[:queries_number,:]
     del suspicious_info, source_info
     
-    print(nns_df_paramaters)
-    print(lsht_df_paramaters) 
-        
-#     exit()
     
     '''
         using scikit-learn : tokenization
     '''
-
     for i,linei in cv_df_paramaters.iterrows():
         tokenize_by_parameters(documents,queries,target,dataset_name,linei,i,dataset_encoding,dataset_encoding)
 
@@ -267,22 +247,19 @@ if __name__ == '__main__':
     '''
         nearest neighbor search (ranking)
     '''
-      
+
     for i,linei in lsht_df_paramaters.iterrows():
         print(linei)
         print('xxxxxx')
         lsh_transform(dataset_name,linei,i,dataset_encoding)
 
-    '''
-        nearest neighbor search (ranking)
-    '''
 
     for i,linei in lshnns_df_paramaters.iterrows():
         print("#"*10+" LSH N.N.S. "+"#"*10)
         print(linei)
         lsh_nearest_neighbors_search(dataset_name,linei,i,dataset_encoding)
         print("-"*20)
-    
+
     for i,linei in pbinns_df_paramaters.iterrows():
         print("#"*10+" PBI N.N.S. "+"#"*10)
         print(linei)
@@ -382,3 +359,8 @@ if __name__ == '__main__':
     b.to_csv('%s%s_lsh_results.csv'%(today,dataset_name),sep='\t')
     
     del b
+
+    today = today.strftime('%Y-%m-%d_%H-%M-%S_')
+    
+    print_pbi(cv_df_paramaters, pbinns_df_paramaters,dataset_name,documents_count,queries_count) 
+
