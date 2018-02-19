@@ -30,10 +30,6 @@ if __name__ == '__main__':
     dataset_name = "pan11"
 
 
-    #dataset_name,sample_size = "pan10-%d-samples",10 
-    #dataset_name = dataset_name%(sample_size)
-    
-
 #     dataset_name,sample_size = "pan10-%d-samples",10 
 #     dataset_name = dataset_name%(sample_size)
     queries_percentage = 25
@@ -90,7 +86,7 @@ if __name__ == '__main__':
             
         json.dumps({          
             "pivot_selection_function" :kMedoids.__name__ ,
-            "k" : ceil(nns_parameters['nns__n_neighbors'][0]*75/100),
+            "k" : ceil(nns_parameters['nns__n_neighbors'][0]*25/1000),
             "tmax":10000,            
         }),
 #          
@@ -129,10 +125,15 @@ if __name__ == '__main__':
 #             "k" : ceil(nns_parameters['nns__n_neighbors'][0]*75/100),                       
 #         }),                             
 #         
-#         json.dumps({          
-#             "pivot_selection_function" :random_select_pivot.__name__ ,
-#             "k" : ceil(nns_parameters['nns__n_neighbors'][0]*25/100),                     
-#         }),
+        json.dumps({          
+            "pivot_selection_function" :random_select_pivot.__name__ ,
+            "k" : ceil(nns_parameters['nns__n_neighbors'][0]*25/100),                     
+        }),
+                                      
+        json.dumps({          
+            "pivot_selection_function" :random_select_pivot.__name__ ,
+            "k" : ceil(nns_parameters['nns__n_neighbors'][0]*25/1000),                     
+        }),
 #          
 #         json.dumps({          
 #             "pivot_selection_function" :random_select_pivot.__name__ ,
@@ -148,12 +149,12 @@ if __name__ == '__main__':
 #             "pivot_selection_function" :random_select_pivot.__name__ ,
 #             "k" : ceil(nns_parameters['nns__n_neighbors'][0]*75/100),                       
 #         }),      
-#                                       
-        json.dumps({            
-            "pivot_selection_function" :reference_set_selection.__name__ ,
-            "k" : ceil(nns_parameters['nns__n_neighbors'][0]*75/100),
-            "ref_sel_threshold" : 0.3,            
-        }),
+# #                                       
+#         json.dumps({            
+#             "pivot_selection_function" :reference_set_selection.__name__ ,
+#             "k" : ceil(nns_parameters['nns__n_neighbors'][0]*75/100),
+#             "ref_sel_threshold" : 0.2,            
+#         }),
 #         json.dumps({            
 #             "pivot_selection_function" :reference_set_selection.__name__ ,
 #             "k" : ceil(nns_parameters['nns__n_neighbors'][0]*75/100),
@@ -245,17 +246,17 @@ if __name__ == '__main__':
         nearest neighbor search (ranking)
     '''
 
-    for i,linei in lsht_df_paramaters.iterrows():
-        print(linei)
-        print('xxxxxx')
-        lsh_transform(dataset_name,linei,i,dataset_encoding)
-# 
-# 
-    for i,linei in lshnns_df_paramaters.iterrows():
-        print("#"*10+" LSH N.N.S. "+"#"*10)
-        print(linei)
-        lsh_nearest_neighbors_search(dataset_name,linei,i,dataset_encoding)
-        print("-"*20)
+#     for i,linei in lsht_df_paramaters.iterrows():
+#         print(linei)
+#         print('xxxxxx')
+#         lsh_transform(dataset_name,linei,i,dataset_encoding)
+# # 
+# # 
+#     for i,linei in lshnns_df_paramaters.iterrows():
+#         print("#"*10+" LSH N.N.S. "+"#"*10)
+#         print(linei)
+#         lsh_nearest_neighbors_search(dataset_name,linei,i,dataset_encoding)
+#         print("-"*20)
 
     for i,linei in pbinns_df_paramaters.iterrows():
         print("#"*10+" PBI N.N.S. "+"#"*10)
@@ -356,7 +357,5 @@ if __name__ == '__main__':
     b.to_csv('%s%s_lsh_results.csv'%(today,dataset_name),sep='\t')
      
     del b
- 
-    today = today.strftime('%Y-%m-%d_%H-%M-%S_')
 #     
 
