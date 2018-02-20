@@ -81,7 +81,7 @@ if __name__ == '__main__':
         "pbinns__sort_neighbors" : nns_parameters['nns__sort_neighbors'],
         "pbinns__bucket_count" : (80,),
         "pbinns__prunning_size" : (ceil(nns_parameters['nns__n_neighbors'][0]*25/100),),
-        "pbinns__using_lsh" : (False,),
+        "pbinns__using_lsh" : (True,),
         "pbinns__pivot_parameters" : (
             
         json.dumps({          
