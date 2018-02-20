@@ -83,110 +83,90 @@ if __name__ == '__main__':
         "pbinns__prunning_size" : (ceil(nns_parameters['nns__n_neighbors'][0]*25/100),),
         "pbinns__using_lsh" : (False,),
         "pbinns__pivot_parameters" : (
+        
+         json.dumps({          
+            "pivot_selection_function" :kMedoids.__name__ ,
+            "k" : 15,
+            "tmax":10000,
+            "distance_metric":"euclidean",            
+        }),
             
         json.dumps({          
             "pivot_selection_function" :kMedoids.__name__ ,
             "k" : 20,
-            "tmax":10000,            
+            "tmax":10000,
+            "distance_metric":"euclidean",            
         }),
                                       
         json.dumps({          
             "pivot_selection_function" :kMedoids.__name__ ,
             "k" : 30,
-            "tmax":10000,            
+            "tmax":10000,
+            "distance_metric":"euclidean",            
         }),
-#          
-#         json.dumps({          
-#             "pivot_selection_function" :kMedoids.__name__ ,
-#             "k" : ceil(nns_parameters['nns__n_neighbors'][0]*25/100),
-#             "tmax":500,            
-#         }),
-#          
-#         json.dumps({          
-#             "pivot_selection_function" :kMedoids.__name__ ,
-#             "k" : ceil(nns_parameters['nns__n_neighbors'][0]*50/100),
-#             "tmax":500,            
-#         }),
-#         
-#         json.dumps({          
-#             "pivot_selection_function" :kMedoids.__name__ ,
-#             "k" : ceil(nns_parameters['nns__n_neighbors'][0]*75/100),
-#             "tmax":500,            
-#         }),
-                                      
-#         json.dumps({          
-#             "pivot_selection_function" :kmeans.__name__ ,
-#             "k" : ceil(nns_parameters['nns__n_neighbors'][0]*10/100),                     
-#         }),
-#          
-       
-#          
-#         json.dumps({          
-#             "pivot_selection_function" :kmeans.__name__ ,
-#             "k" : ceil(nns_parameters['nns__n_neighbors'][0]*50/100),                   
-#         }),
-#         
-#         json.dumps({          
-#             "pivot_selection_function" :kmeans.__name__ ,
-#             "k" : ceil(nns_parameters['nns__n_neighbors'][0]*75/100),                       
-#         }),                             
-#         
-#         json.dumps({          
-#             "pivot_selection_function" :random_select_pivot.__name__ ,
-#             "k" : ceil(nns_parameters['nns__n_neighbors'][0]*25/100),                     
-#         }),
-#                                       
-#         json.dumps({          
-#             "pivot_selection_function" :random_select_pivot.__name__ ,
-#             "k" : ceil(nns_parameters['nns__n_neighbors'][0]*25/1000),                     
-#         }),
-#          
-#         json.dumps({          
-#             "pivot_selection_function" :random_select_pivot.__name__ ,
-#             "k" : ceil(nns_parameters['nns__n_neighbors'][0]*25/100),                       
-#         }),
-#          
         json.dumps({          
+            "pivot_selection_function" :kMedoids.__name__ ,
+            "k" : 20,
+            "tmax":10000,
+            "distance_metric":"jaccard",            
+        }),
+                                      
+        json.dumps({          
+            "pivot_selection_function" :kMedoids.__name__ ,
+            "k" : 30,
+            "tmax":10000,
+            "distance_metric":"jaccard",            
+        }),
+        json.dumps({          
+            "pivot_selection_function" :kMedoids.__name__ ,
+            "k" : 20,
+            "tmax":10000,
+            "distance_metric":"cosine",            
+        }),
+                                      
+        json.dumps({          
+            "pivot_selection_function" :kMedoids.__name__ ,
+            "k" : 30,
+            "tmax":10000,
+            "distance_metric":"cosine",            
+        }),
+        
+        json.dumps({          
+             "pivot_selection_function" :kmeans.__name__ ,
+             "k" : 20,
+             "distance_metric":"euclidean",                      
+         }),
+         
+         json.dumps({          
+             "pivot_selection_function" :kmeans.__name__ ,
+             "k" : 15,
+             "distance_metric":"euclidean",                      
+         }),
+         
+         json.dumps({          
             "pivot_selection_function" :random_select_pivot.__name__ ,
             "k" : 50,                   
         }),
-#         
-#         json.dumps({          
-#             "pivot_selection_function" :random_select_pivot.__name__ ,
-#             "k" : ceil(nns_parameters['nns__n_neighbors'][0]*75/100),                       
-#         }),      
-# #                                       
-#         json.dumps({            
-#             "pivot_selection_function" :reference_set_selection.__name__ ,
-#             "k" : ceil(nns_parameters['nns__n_neighbors'][0]*75/100),
-#             "ref_sel_threshold" : 0.2,            
-#         }),
-#         json.dumps({            
-#             "pivot_selection_function" :reference_set_selection.__name__ ,
-#             "k" : ceil(nns_parameters['nns__n_neighbors'][0]*75/100),
-#             "ref_sel_threshold" : 0.25,            
-#         }),
-# 
-#         json.dumps({            
-#             "pivot_selection_function" :reference_set_selection.__name__ ,
-#             "k" : ceil(nns_parameters['nns__n_neighbors'][0]*25/100),
-#             "ref_sel_threshold" : 0.5,            
-#         }),
-#         json.dumps({            
-#             "pivot_selection_function" :reference_set_selection.__name__ ,
-#             "k" : ceil(nns_parameters['nns__n_neighbors'][0]*75/100),
-#             "ref_sel_threshold" : 0.5,            
-#         }),
-#         json.dumps({            
-#             "pivot_selection_function" :reference_set_selection.__name__ ,
-#             "k" : ceil(nns_parameters['nns__n_neighbors'][0]*25/100),
-#             "ref_sel_threshold" : 0.75,            
-#         }),
-#         json.dumps({            
-#             "pivot_selection_function" :reference_set_selection.__name__ ,
-#             "k" : ceil(nns_parameters['nns__n_neighbors'][0]*75/100),
-#             "ref_sel_threshold" : 0.75,            
-#         }),
+        
+        json.dumps({          
+            "pivot_selection_function" :random_select_pivot.__name__ ,
+            "k" : 30,                   
+        }),
+        
+       
+         json.dumps({            
+             "pivot_selection_function" :reference_set_selection.__name__ ,
+             "k" : 30,
+             "ref_sel_threshold" : 0.25,
+             "distance_metric":"euclidean",            
+         }),
+         
+         json.dumps({            
+             "pivot_selection_function" :reference_set_selection.__name__ ,
+             "k" : 20,
+             "ref_sel_threshold" : 0.25,
+             "distance_metric":"euclidean",            
+         }),
 ),
                          }
 
