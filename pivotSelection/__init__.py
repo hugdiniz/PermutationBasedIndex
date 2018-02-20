@@ -42,10 +42,14 @@ def reference_set_selection(X,parameters = {}):
         reference_set_size = parameters["k"]
     else:
         reference_set_size = 25
-    if("distance_metric" in parameters):
-        f_distance_metric = parameters["distance_metric"]
+    if("function_distance" in parameters):
+        f_distance_metric = parameters["function_distance"]
     else:
-        f_distance_metric = pairwise_cosine_distance 
+        f_distance_metric = pairwise_cosine_distance
+    if("distance_metric" in parameters):
+        distance_metric = parameters["distance_metric"]
+    else:
+        distance_metric = "jaccard"    
     if("ref_sel_threshold" in parameters):
         ref_sel_threshold = parameters["ref_sel_threshold"]
     else:
@@ -57,13 +61,13 @@ def reference_set_selection(X,parameters = {}):
 
     current_id = set_id[0]
     
-    first_reference = np.nonzero(f_distance_metric(X[current_id,:],X) > ref_sel_threshold)[1]
+    first_reference = np.nonzero(f_distance_metric(X[current_id,:],X,metric=distance_metric) > ref_sel_threshold)[1]
 
     i = 0        
     while len(set_id) < reference_set_size and i < len(first_reference):
         current_id = first_reference[i]
         i += 1
-        current_reference = np.nonzero(f_distance_metric(X[current_id,:],X[set_id,:]) < ref_sel_threshold)[1]
+        current_reference = np.nonzero(f_distance_metric(X[current_id,:],X[set_id,:],metric=distance_metric) < ref_sel_threshold)[1]
         
         if len(current_reference) == 0:
             set_id.append(current_id)
@@ -79,10 +83,14 @@ def reference_set_selection(X,parameters = {}):
 '''
 def kMedoids(X, parameters = {}):
     
-    if("distance_metric" in parameters):
-        f_distance_metric = parameters["distance_metric"]
+    if("function_distance" in parameters):
+        f_distance_metric = parameters["function_distance"]
     else:
         f_distance_metric = pairwise_cosine_distance
+    if("distance_metric" in parameters):
+        distance_metric = parameters["distance_metric"]
+    else:
+        distance_metric = "jaccard"
     
     if("k" in parameters):
         k = parameters["k"]
@@ -142,10 +150,14 @@ def kMedoids(X, parameters = {}):
 def kmeans(X, parameters = {}):
     
     t0 = time()
-    if("distance_metric" in parameters):
-        f_distance_metric = parameters["distance_metric"]
+    if("function_distance" in parameters):
+        f_distance_metric = parameters["function_distance"]
     else:
         f_distance_metric = pairwise_cosine_distance
+    if("distance_metric" in parameters):
+        distance_metric = parameters["distance_metric"]
+    else:
+        distance_metric = "jaccard"
         
     if("k" in parameters):
         k = parameters["k"]
