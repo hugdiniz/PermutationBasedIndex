@@ -86,13 +86,13 @@ if __name__ == '__main__':
             
         json.dumps({          
             "pivot_selection_function" :kMedoids.__name__ ,
-            "k" : 100,
+            "k" : 20,
             "tmax":10000,            
         }),
                                       
         json.dumps({          
             "pivot_selection_function" :kMedoids.__name__ ,
-            "k" : 50,
+            "k" : 30,
             "tmax":10000,            
         }),
 #          
