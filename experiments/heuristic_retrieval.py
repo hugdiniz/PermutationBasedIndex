@@ -46,7 +46,7 @@ if __name__ == '__main__':
         "cv__min_df" : (
                          1,
                         ),
-        "cv__binary" : (True,),
+        "cv__binary" : (False,),
         "cv__stop_words" : ('english',),
         "cv__use_idf" : (True,),
         "cv__norm" : (
