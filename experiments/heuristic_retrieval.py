@@ -30,8 +30,8 @@ if __name__ == '__main__':
     dataset_name = "pan11"
 
 
-#     dataset_name,sample_size = "pan10-%d-samples",10 
-#     dataset_name = dataset_name%(sample_size)
+#    dataset_name,sample_size = "pan10-%d-samples",10 
+#    dataset_name = dataset_name%(sample_size)
     queries_percentage = 25
      
     cv_parameters = {
@@ -67,6 +67,7 @@ if __name__ == '__main__':
     
     lshnns_parameters = {
         "lshnns__n_neighbors" : (7983,),
+        #"lshnns__n_neighbors" : (20,),
         "lshnns__sort_neighbors" : (False,),
                          
     }
@@ -82,28 +83,8 @@ if __name__ == '__main__':
         "pbinns__bucket_count" : (80,),
         "pbinns__prunning_size" : (ceil(nns_parameters['nns__n_neighbors'][0]*25/100),),
         "pbinns__using_lsh" : (False,),
-        "pbinns__pivot_parameters" : (
+        "pbinns__pivot_parameters" : (             
         
-         json.dumps({          
-            "pivot_selection_function" :kMedoids.__name__ ,
-            "k" : 15,
-            "tmax":10000,
-            "distance_metric":"euclidean",            
-        }),
-            
-        json.dumps({          
-            "pivot_selection_function" :kMedoids.__name__ ,
-            "k" : 20,
-            "tmax":10000,
-            "distance_metric":"euclidean",            
-        }),
-                                      
-        json.dumps({          
-            "pivot_selection_function" :kMedoids.__name__ ,
-            "k" : 30,
-            "tmax":10000,
-            "distance_metric":"euclidean",            
-        }),
         json.dumps({          
             "pivot_selection_function" :kMedoids.__name__ ,
             "k" : 20,
@@ -129,30 +110,7 @@ if __name__ == '__main__':
             "k" : 30,
             "tmax":10000,
             "distance_metric":"cosine",            
-        }),
-        
-        json.dumps({          
-             "pivot_selection_function" :kmeans.__name__ ,
-             "k" : 20,
-             "distance_metric":"euclidean",                      
-         }),
-         
-         json.dumps({          
-             "pivot_selection_function" :kmeans.__name__ ,
-             "k" : 15,
-             "distance_metric":"euclidean",                      
-         }),
-         
-         json.dumps({          
-            "pivot_selection_function" :random_select_pivot.__name__ ,
-            "k" : 50,                   
-        }),
-        
-        json.dumps({          
-            "pivot_selection_function" :random_select_pivot.__name__ ,
-            "k" : 30,                   
-        }),
-        
+        }),              
        
          json.dumps({            
              "pivot_selection_function" :reference_set_selection.__name__ ,
@@ -163,9 +121,22 @@ if __name__ == '__main__':
          
          json.dumps({            
              "pivot_selection_function" :reference_set_selection.__name__ ,
+             "k" : 30,
+             "ref_sel_threshold" : 0.25,
+             "distance_metric":"cosine",            
+         }),
+         
+         json.dumps({            
+             "pivot_selection_function" :reference_set_selection.__name__ ,
              "k" : 20,
              "ref_sel_threshold" : 0.25,
              "distance_metric":"euclidean",            
+         }),
+         json.dumps({            
+             "pivot_selection_function" :reference_set_selection.__name__ ,
+             "k" : 20,
+             "ref_sel_threshold" : 0.25,
+             "distance_metric":"cosine",            
          }),
 ),
                          }

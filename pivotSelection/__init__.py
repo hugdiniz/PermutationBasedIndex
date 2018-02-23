@@ -61,7 +61,7 @@ def reference_set_selection(X,parameters = {}):
 
     current_id = set_id[0]
     
-    first_reference = np.nonzero(f_distance_metric(X[current_id,:],X,metric=distance_metric) > ref_sel_threshold)[1]
+    first_reference = np.nonzero(f_distance_metric(X[current_id,:],X,metric_distance=distance_metric) > ref_sel_threshold)[1]
 
     i = 0        
     while len(set_id) < reference_set_size and i < len(first_reference):
@@ -104,7 +104,7 @@ def kMedoids(X, parameters = {}):
     
     t0 = time()
     
-    D = f_distance_metric(X)
+    D = f_distance_metric(X,metric_distance=distance_metric)
        
     m, n = D.shape
 
