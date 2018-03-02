@@ -377,7 +377,14 @@ def pbinearest_neighbors_search(dataset_name, nns_parameters_dataframe_line, nns
     else:
         source_file_path = h5_results_filename(dataset_name, 'cv', indexi)
         technique_name = "pbinns"
-         
+    
+    if("pbinns__pivot_parameters" in nns_parameters_dataframe_line):
+        pivot_parameters = nns_parameters_dataframe_line["pbinns__pivot_parameters"]        
+        vocabulary_file_path = dataset_name +"_cv_" + str(indexi) +"_vocabulary.pkl" 
+        with open(vocabulary_file_path,'rb') as f:
+            pivot_parameters["pbinns__vocabulary"] = pickle.load(f)        
+#         nns_parameters_dataframe_line_index["pbinns__pivot_parameters"] = pivot_parameters
+       
     file_path = h5_results_filename(dataset_name, technique_name, nns_parameters_dataframe_line_index)
 
     if os.path.exists(file_path):

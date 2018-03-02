@@ -61,7 +61,7 @@ def reference_set_selection(X,parameters = {}):
 
     current_id = set_id[0]
     
-    first_reference = np.nonzero(f_distance_metric(X[current_id,:],X,metric=distance_metric) > ref_sel_threshold)[1]
+    first_reference = np.nonzero(f_distance_metric(X[current_id,:],X,metric_distance=distance_metric) > ref_sel_threshold)[1]
 
     i = 0        
     while len(set_id) < reference_set_size and i < len(first_reference):
@@ -104,7 +104,7 @@ def kMedoids(X, parameters = {}):
     
     t0 = time()
     
-    D = f_distance_metric(X)
+    D = f_distance_metric(X,metric_distance=distance_metric)
        
     m, n = D.shape
 
@@ -180,5 +180,68 @@ def kmeans(X, parameters = {}):
     return np.array(M), time()-t0
 
 
+def kmedoidwv(X, parameters = {}):
+    t0 = time()
+    if("function_distance" in parameters):
+        f_distance_metric = parameters["function_distance"]
+    else:
+        f_distance_metric = pairwise_cosine_distance
+    if("random_state" in parameters):
+        random_state = parameters["random_state"]
+    else:
+        random_state = 0
+        
+    if("k" in parameters):
+        k = parameters["k"]
+    else:
+        k = 10
+    
+    dictParametersTokenized = parameters["pbinns__vocabulary"]
+    word_vectors = KeyedVectors.load_word2vec_format('GoogleNews-vectors-negative300.bin', binary=True)
+#     word_vectors.get_vector("king")
+#     model.most_similar(positive=[your_word_vector], topn=1)
+    t0 = time()
+    
+    keys = list(dictParametersTokenized.keys())
+    
+    D = np.array([ word_vectors.get_vector(keys[x]) for x in range(keys.__len__()) ])
+              
+    m, n = D.shape
 
+    if k > n:
+        raise Exception('too many medoids')
+    # randomly initialize an array of k medoid indices
+    M = np.arange(n)
+    np.random.shuffle(M)
+    M = np.sort(M[:k])
+
+    # create a copy of the array of medoid indices
+    Mnew = np.copy(M)
+
+    # initialize a dictionary to represent clusters
+    C = {}
+    for t in range(tmax):
+        # determine clusters, i. e. arrays of data indices
+        J = sp.argmin(D[:,M], axis=1)
+        for kappa in range(k):
+            C[kappa] = np.where(J==kappa)[0]
+        # update cluster medoids
+        for kappa in range(k):
+            J = np.mean(D[np.ix_(C[kappa],C[kappa])],axis=1)
+            j = np.argmin(J)
+            Mnew[kappa] = C[kappa][j]
+        np.sort(Mnew)
+        # check for convergence
+        if np.array_equal(M, Mnew):
+            break
+        M = np.copy(Mnew)
+    else:
+        # final update of cluster memberships
+        J = np.argmin(D[:,M], axis=1)
+        for kappa in range(k):
+            C[kappa] = np.where(J==kappa)[0]
+
+    indexX = [dictParametersTokenized(keys[m]) for m in M]
+    # return results
+    return X[indexX,:],time()-t0
 
