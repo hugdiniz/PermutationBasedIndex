@@ -103,9 +103,10 @@ def kMedoids(X, parameters = {}):
         tmax = 100
     
     t0 = time()
-    
-    D = f_distance_metric(X,metric_distance=distance_metric)
-       
+    if(distance_metric == "jaccard"):
+        D = f_distance_metric(X.todense(),metric_distance=distance_metric)
+    else:
+        D = f_distance_metric(X,metric_distance=distance_metric)
     m, n = D.shape
 
     if k > n:

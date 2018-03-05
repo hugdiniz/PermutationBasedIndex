@@ -7,7 +7,7 @@ import json
 
 from sklearn.pipeline import Pipeline
 from sklearn.grid_search import ParameterGrid
-from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 from sklearn.externals.joblib.parallel import delayed, Parallel
 
 from scipy import vstack

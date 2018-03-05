@@ -18,7 +18,7 @@ class PermutationBasedIndex(InvertedIndex):
         if("pbinns__prunning_size" in self.parameters):
             self.prunning_size = self.parameters["pbinns__prunning_size"]
         else:
-            self.prunning_size = 1
+            self.prunning_size = 100
         
         if("pbinns__bucket_count" in self.parameters):
             self.bucket_count = self.parameters["pbinns__bucket_count"]
@@ -35,7 +35,7 @@ class PermutationBasedIndex(InvertedIndex):
         
         t0 = time()
         
-        distances = pairwise_distances(X[d_index,:],self.reference_set_id, metric='cosine', n_jobs=1)
+        distances = pairwise_distances(X[d_index,:],self.reference_set_id, metric='euclidean', n_jobs=1)
         
         lr = argsort(distances,axis=1)
         return lr[:,:self.prunning_size], time() - t0
