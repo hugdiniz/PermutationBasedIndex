@@ -5,7 +5,7 @@ import scipy as sp
 import random
 from time import time
 from sklearn.metrics.pairwise import pairwise_distances
-from sklearn.cluster import KMeans
+from sklearn.cluster import KMeans,Birch
 from random import sample
 
 def random_select_pivot(X,parameters = {}):
@@ -180,7 +180,37 @@ def kmeans(X, parameters = {}):
     
     return np.array(M), time()-t0
 
-
+def birch(X, parameters = {}):
+    
+    t0 = time()
+    if("function_distance" in parameters):
+        f_distance_metric = parameters["function_distance"]
+    else:
+        f_distance_metric = pairwise_cosine_distance
+    if("distance_metric" in parameters):
+        distance_metric = parameters["distance_metric"]
+    else:
+        distance_metric = "jaccard"
+        
+    if("k" in parameters):
+        k = parameters["k"]
+    else:
+        k = 10
+        
+    if("random_state" in parameters):
+        random_state = parameters["random_state"]
+    else:
+        random_state = 0
+    
+        
+    #D = f_distance_metric(X).T
+        
+    
+    birch = Birch(threshold=0.5, branching_factor=10, n_clusters=k, compute_labels=True, copy=True).fit(X)
+    
+    M = birch.subcluster_centers_
+    
+    return np.array(M), time()-t0
 def kmedoidwv(X, parameters = {}):
     t0 = time()
     if("function_distance" in parameters):
