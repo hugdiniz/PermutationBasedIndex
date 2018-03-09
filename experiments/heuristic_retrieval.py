@@ -91,19 +91,22 @@ if __name__ == '__main__':
         json.dumps({          
              "pivot_selection_function" :reference_set_selection.__name__ ,       
              "k" : 10,
-             "ref_sel_threshold" : 0.5,            
+             "ref_sel_threshold" : 0.5,
+             "distance_metric":"euclidean",            
          }),
         
         json.dumps({          
              "pivot_selection_function" :reference_set_selection.__name__ ,       
              "k" : 20,
-             "ref_sel_threshold" : 0.5            
+             "ref_sel_threshold" : 0.5,
+             "distance_metric":"euclidean",            
          }),
         
         json.dumps({          
              "pivot_selection_function" :reference_set_selection.__name__ ,       
              "k" : 30,       
-             "ref_sel_threshold" : 0.5     
+             "ref_sel_threshold" : 0.5,
+             "distance_metric":"euclidean",    
          }),
         
         json.dumps({          
