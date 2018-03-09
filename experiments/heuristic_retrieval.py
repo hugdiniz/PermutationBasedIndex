@@ -26,8 +26,8 @@ if __name__ == '__main__':
         storing it as pandas Dataframes on hdf
     '''
 #    dataset_name = "psa"
-    dataset_name = "pan10"
-#    dataset_name = "pan11"
+#     dataset_name = "pan10"
+    dataset_name = "pan11"
 
 
 
@@ -48,11 +48,11 @@ if __name__ == '__main__':
         "cv__min_df" : (
                          1,
                         ),
-        "cv__binary" : (False,),
+        "cv__binary" : (True,),
         "cv__stop_words" : ('english',),
-        "cv__use_idf" : (False,),
+        "cv__use_idf" : (True,),
          "cv__norm" : (
-                      None,
+                      'l1',
                       ),
         
     }
@@ -89,6 +89,24 @@ if __name__ == '__main__':
         "pbinns__pivot_parameters" : (             
         
         json.dumps({          
+             "pivot_selection_function" :reference_set_selection.__name__ ,       
+             "k" : 10,
+             "ref_sel_threshold" : 0.5,            
+         }),
+        
+        json.dumps({          
+             "pivot_selection_function" :reference_set_selection.__name__ ,       
+             "k" : 20,
+             "ref_sel_threshold" : 0.5            
+         }),
+        
+        json.dumps({          
+             "pivot_selection_function" :reference_set_selection.__name__ ,       
+             "k" : 30,       
+             "ref_sel_threshold" : 0.5     
+         }),
+        
+        json.dumps({          
              "pivot_selection_function" :kMedoids.__name__ ,
              "k" : 10,
              "tmax":10000,
@@ -96,7 +114,7 @@ if __name__ == '__main__':
          }),
         json.dumps({          
              "pivot_selection_function" :kMedoids.__name__ ,
-             "k" : 15,
+             "k" : 20,
              "tmax":10000,
              "distance_metric":"euclidean",            
          }),
@@ -106,19 +124,28 @@ if __name__ == '__main__':
              "tmax":10000,
              "distance_metric":"euclidean",            
          }),
-       
-#        json.dumps({          
-#             "pivot_selection_function" :birch.__name__ ,
-#             "k" : 2,
-#             "tmax":10000,
-#             "distance_metric":"euclidean",            
-#         }),
-       
+        
+        json.dumps({          
+             "pivot_selection_function" :kmeans.__name__ ,
+             "k" : 20,
+             "tmax":10000,
+             "distance_metric":"euclidean",            
+         }),
+                                      
         json.dumps({          
              "pivot_selection_function" :random_select_pivot.__name__ ,       
              "k" : 10,            
          }),
-       
+        
+        json.dumps({          
+             "pivot_selection_function" :random_select_pivot.__name__ ,       
+             "k" : 20,            
+         }),
+        
+        json.dumps({          
+             "pivot_selection_function" :random_select_pivot.__name__ ,       
+             "k" : 30,            
+         }),
 
 ),
                          }

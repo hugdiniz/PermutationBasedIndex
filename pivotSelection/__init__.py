@@ -67,7 +67,7 @@ def reference_set_selection(X,parameters = {}):
     while len(set_id) < reference_set_size and i < len(first_reference):
         current_id = first_reference[i]
         i += 1
-        current_reference = np.nonzero(f_distance_metric(X[current_id,:],X[set_id,:],metric=distance_metric) < ref_sel_threshold)[1]
+        current_reference = np.nonzero(f_distance_metric(X[current_id,:],X[set_id,:],metric_distance=distance_metric) < ref_sel_threshold)[1]
         
         if len(current_reference) == 0:
             set_id.append(current_id)
