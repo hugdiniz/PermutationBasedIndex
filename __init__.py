@@ -35,7 +35,7 @@ class PermutationBasedIndex(InvertedIndex):
         
         t0 = time()
         
-        distances = pairwise_distances(X[d_index,:],self.reference_set_id, metric='euclidean', n_jobs=1)
+        distances = pairwise_distances(X[d_index,:],self.reference_set_id, metric='cosine', n_jobs=1)
         
         lr = argsort(distances,axis=1)
         return lr[:,:self.prunning_size], time() - t0
