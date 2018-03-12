@@ -165,7 +165,6 @@ if __name__ == '__main__':
         print('xxxxxx')
         lsh_transform(dataset_name,linei,i,dataset_encoding)
 # 
-
 # 
     for i,linei in lshnns_df_paramaters.iterrows():
         print("#"*10+" LSH N.N.S. "+"#"*10)
