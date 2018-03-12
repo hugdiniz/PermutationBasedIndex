@@ -26,8 +26,8 @@ if __name__ == '__main__':
         storing it as pandas Dataframes on hdf
     '''
 #    dataset_name = "psa"
-    dataset_name = "pan10"
-#    dataset_name = "pan11"
+#     dataset_name = "pan10"
+    dataset_name = "pan11"
 
 
 
@@ -58,9 +58,9 @@ if __name__ == '__main__':
     }
     
     lsht_parameters = {
-        "lsht__n_permutations" : (6,),
+        "lsht__n_permutations" : (24,),
         "lsht__selection_function" : (
-                                     MinMaxSymetricFPRAE(n_partitions=4),                                  
+                                     minmax_hashing,                                  
                                       ),
         "lsht__n_jobs" : (
                         -1,
@@ -69,7 +69,7 @@ if __name__ == '__main__':
     
     lshnns_parameters = {
 
-        "lshnns__n_neighbors" : (5574,),
+        "lshnns__n_neighbors" : (7983,),
 #        "lshnns__n_neighbors" : (20,),
         "lshnns__sort_neighbors" : (False,),
                          
@@ -90,70 +90,9 @@ if __name__ == '__main__':
         
         json.dumps({          
              "pivot_selection_function" :reference_set_selection.__name__ ,       
-             "k" : 10,
+             "k" : 50,
              "ref_sel_threshold" : 0.5,
-             "distance_metric":"cosine",            
-         }),
-        
-        json.dumps({          
-             "pivot_selection_function" :reference_set_selection.__name__ ,       
-             "k" : 20,
-             "ref_sel_threshold" : 0.5,
-             "distance_metric":"cosine",            
-         }),
-        
-        json.dumps({          
-             "pivot_selection_function" :reference_set_selection.__name__ ,       
-             "k" : 30,       
-             "ref_sel_threshold" : 0.5,
-             "distance_metric":"cosine",    
-         }),
-        
-        json.dumps({          
-             "pivot_selection_function" :kMedoids.__name__ ,
-             "k" : 10,
-             "tmax":10000,
              "distance_metric":"euclidean",            
-         }),
-        json.dumps({          
-             "pivot_selection_function" :kMedoids.__name__ ,
-             "k" : 20,
-             "tmax":10000,
-             "distance_metric":"euclidean",            
-         }),
-        json.dumps({          
-             "pivot_selection_function" :kMedoids.__name__ ,
-             "k" : 30,
-             "tmax":10000,
-             "distance_metric":"euclidean",            
-         }),
-        json.dumps({          
-             "pivot_selection_function" :kmeans.__name__ ,
-             "k" : 10,
-             "tmax":10000,
-             "distance_metric":"euclidean",            
-         }),
-        
-        json.dumps({          
-             "pivot_selection_function" :kmeans.__name__ ,
-             "k" : 20,
-             "tmax":10000,
-             "distance_metric":"euclidean",            
-         }),
-                                      
-        json.dumps({          
-             "pivot_selection_function" :random_select_pivot.__name__ ,       
-             "k" : 10,            
-         }),
-        
-        json.dumps({          
-             "pivot_selection_function" :random_select_pivot.__name__ ,       
-             "k" : 20,            
-         }),
-        
-        json.dumps({          
-             "pivot_selection_function" :random_select_pivot.__name__ ,       
-             "k" : 30,            
          }),
 
 ),
@@ -221,17 +160,17 @@ if __name__ == '__main__':
         nearest neighbor search (ranking)
     '''
 
-    for i,linei in lsht_df_paramaters.iterrows():
-        print(linei)
-        print('xxxxxx')
-        lsh_transform(dataset_name,linei,i,dataset_encoding)
-# 
-# 
-    for i,linei in lshnns_df_paramaters.iterrows():
-        print("#"*10+" LSH N.N.S. "+"#"*10)
-        print(linei)
-        lsh_nearest_neighbors_search(dataset_name,linei,i,dataset_encoding)
-        print("-"*20)
+#     for i,linei in lsht_df_paramaters.iterrows():
+#         print(linei)
+#         print('xxxxxx')
+#         lsh_transform(dataset_name,linei,i,dataset_encoding)
+# # 
+# # 
+#     for i,linei in lshnns_df_paramaters.iterrows():
+#         print("#"*10+" LSH N.N.S. "+"#"*10)
+#         print(linei)
+#         lsh_nearest_neighbors_search(dataset_name,linei,i,dataset_encoding)
+#         print("-"*20)
 
     for i,linei in pbinns_df_paramaters.iterrows():
         print("#"*10+" PBI N.N.S. "+"#"*10)
@@ -247,13 +186,13 @@ if __name__ == '__main__':
 #     '''
     print_pbi(cv_df_paramaters, pbinns_df_paramaters,dataset_name,documents_count,queries_count) 
     
-# #     '''
-# #         logging LSH nearest neighbors results on csv
-# #     '''
+#     '''
+#         logging LSH nearest neighbors results on csv
+#     '''
     a = pd.merge(cv_df_paramaters, lsht_df_paramaters, how='inner', left_index=True, right_on=['input__filename_index',],)
     b = pd.merge(a, lshnns_df_paramaters, how='inner', left_index=True, right_on=['input__filename_index',],suffixes=('_lsht','_lshtnns'))    
     del a
- 
+  
     for rowi in b.iterrows():
         cv_index = rowi[1]['input__filename_index_lsht']
         lsht_index = rowi[1]['input__filename_index_lshtnns']
