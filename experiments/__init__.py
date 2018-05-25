@@ -22,7 +22,7 @@ from pprint import pprint
 from PermutationBasedIndex import PBINearestNeighbors
 from PermutationBasedIndex.pivotSelection import reference_set_selection, kMedoids, kmeans,random_select_pivot,birch
 
-from locality_sensitive_hashing import LSHTransformer, LSHIINearestNeighbors, InvertedIndexNearestNeighbors
+from locality_sensitive_hashing import LSHTransformer, LSHIINearestNeighbors, InvertedIndexNearestNeighbors,BM25NearestNeighbors
  
 def encode_dataframe_content(dataframe_contenti, encoding):
     return dataframe_contenti.encode(encoding)    
@@ -411,6 +411,20 @@ def nearest_neighbors_search(dataset_name, nns_parameters_dataframe_line, nns_pa
         __nearest_neighbors_search(pipe_to_exec, source_file_path, file_path)
 
 
+def bm25_nearest_neighbors_search(dataset_name, bm25nns_parameters_dataframe_line, bm25nns_parameters_dataframe_line_index, encoding):
+    indexi = bm25nns_parameters_dataframe_line['input__filename_index']
+    source_file_path = h5_results_filename(dataset_name, 'cv', indexi)
+    file_path = h5_results_filename(dataset_name, 'bm25nns', bm25nns_parameters_dataframe_line_index)
+
+#     print(nns_parameters_dataframe_line)
+    
+    if os.path.exists(file_path) :
+        print(file_path,' already exists!')
+    else:    
+        pipe_to_exec = Pipeline([('bm25nns',BM25NearestNeighbors(n_neighbors=bm25nns_parameters_dataframe_line["bm25nns__n_neighbors"]))])
+        #pipe_to_exec.set_params(**bm25nns_parameters_dataframe_line.drop('input__filename_index'))
+
+        __nearest_neighbors_search(pipe_to_exec, source_file_path, file_path)
 
 def generate_or_load_parameters_grids(parameters_sequence,dataset_name):
     parameters_grids_list = []
