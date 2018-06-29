@@ -61,13 +61,16 @@ class PermutationBasedIndex(InvertedIndex):
         self.index_features = X
          
         self.bij = np.empty((X.shape[0],self.reference_set_id.shape[0]),np.int)
+        self.r_map = np.empty(X.shape[0],dict)
         for d_index in range(X.shape[0]):
-            d_list_in_r, d_list_time = self.relative_ordered_list(X, d_index)
-
             t0 = time()
-            for j in range(d_list_in_r.shape[1]):
-                self.bij[d_index,j] = ceil(((self.bucket_count-1)*d_list_in_r[0,j])/self.reference_set_id.shape[0])
-                self.ii[j][self.bij[d_index,j]].append(d_index) 
+            d_list_in_r, d_list_time = self.relative_ordered_list(X, d_index)
+            d_list_in_r = d_list_in_r[0]
+            self.r_map[d_index] = dict(zip(d_list_in_r, range(d_list_in_r.shape[0])))            
+            #for j in range(d_list_in_r.shape[0]):
+                
+                #self.bij[d_index,j] = ceil(((self.bucket_count-1)*d_list_in_r[0,j])/self.reference_set_id.shape[0])
+                #self.ii[j][self.bij[d_index,j]].append(d_index) 
             
             self.index_time += time() - t0
             self.index_time += d_list_time 
@@ -89,14 +92,22 @@ class PermutationBasedIndex(InvertedIndex):
         
         for q_index in range(X.shape[0]):
             q_list_in_r, q_list_time = self.relative_ordered_list(X, q_index)
-
+            q_list_in_r = q_list_in_r[0]
+            
             t0 = time()
-            for j in range(q_list_in_r.shape[1]):
-                bqj = ceil(((self.bucket_count-1)*q_list_in_r[0,j])/self.reference_set_id.shape[0])
+            for j in range(self.r_map.shape[0]):
+                for x in range(q_list_in_r.shape[0]):
+                    if(self.r_map[j].__contains__(q_list_in_r[x])):
+                        scores[q_index,j] = scores[q_index,j] +  abs(x - self.r_map[j][ q_list_in_r[x] ])
 
-                scores[q_index,self.ii[j][bqj-1]] = scores[q_index,self.ii[j][bqj-1]] + 1
-                scores[q_index,self.ii[j][bqj]] = scores[q_index,self.ii[j][bqj]] + 2
-                scores[q_index,self.ii[j][bqj+1]] = scores[q_index,self.ii[j][bqj+1]] + 1
+                
+                #scores[q_index,j] = sum([abs(x - self.r_map[j][ q_list_in_r[x] ]) for x in range(q_list_in_r.shape[0])])
+#                 bqj = ceil(((self.bucket_count-1)*q_list_in_r[0,j])/self.reference_set_id.shape[0])
+# 
+#                 scores[q_index,self.ii[j][bqj-1]] = scores[q_index,self.ii[j][bqj-1]] + 1
+#                 scores[q_index,self.ii[j][bqj]] = scores[q_index,self.ii[j][bqj]] + 2
+#                 scores[q_index,self.ii[j][bqj+1]] = scores[q_index,self.ii[j][bqj+1]] + 1
+        
                     
             
             time_to_score += time() - t0
