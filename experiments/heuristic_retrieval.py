@@ -27,14 +27,14 @@ if __name__ == '__main__':
     '''
 #    dataset_name = "pan11"
 #     dataset_name = "pan10"
-    dataset_name = "psa"
+#    dataset_name = "psa"
 
 
 
-#   dataset_name,sample_size = "pan10-%d-samples",10 
-#   dataset_name = dataset_name%(sample_size)
-#    queries_percentage = 25
-    queries_percentage = 90
+    dataset_name,sample_size = "pan10-%d-samples",10 
+    dataset_name = dataset_name%(sample_size)
+    queries_percentage = 25
+#    queries_percentage = 90
 
     cv_parameters = {
         "cv__analyzer" : ('word',),
