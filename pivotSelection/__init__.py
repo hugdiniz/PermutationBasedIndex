@@ -49,7 +49,7 @@ def reference_set_selection(X,parameters = {}):
     if("distance_metric" in parameters):
         distance_metric = parameters["distance_metric"]
     else:
-        distance_metric = "jaccard"    
+        distance_metric = "euclidean"    
     if("ref_sel_threshold" in parameters):
         ref_sel_threshold = parameters["ref_sel_threshold"]
     else:
