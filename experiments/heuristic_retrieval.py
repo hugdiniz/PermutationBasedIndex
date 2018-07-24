@@ -26,14 +26,14 @@ if __name__ == '__main__':
         storing it as pandas Dataframes on hdf
     '''
 #    dataset_name = "pan11"
-#     dataset_name = "pan10"
+    dataset_name = "pan10"
 #    dataset_name = "psa"
 
 
 
-    dataset_name,sample_size = "pan10-%d-samples",10 
-    dataset_name = dataset_name%(sample_size)
-    queries_percentage = 25
+#    dataset_name,sample_size = "pan10-%d-samples",10 
+#    dataset_name = dataset_name%(sample_size)
+    queries_percentage = 50
 #    queries_percentage = 90
 
     cv_parameters = {
@@ -58,7 +58,7 @@ if __name__ == '__main__':
     }
     
     lsht_parameters = {
-        "lsht__n_permutations" : (24,),
+        "lsht__n_permutations" : (12,24,),
         "lsht__selection_function" : (
                                      minmax_hashing,                                  
                                       ),
@@ -69,7 +69,7 @@ if __name__ == '__main__':
     
     lshnns_parameters = {
 
-        "lshnns__n_neighbors" : (40,),
+        "lshnns__n_neighbors" : (10,20,40,),
 #        "lshnns__n_neighbors" : (20,),
         "lshnns__sort_neighbors" : (False,),
                          
@@ -192,12 +192,12 @@ if __name__ == '__main__':
         lsh_nearest_neighbors_search(dataset_name,linei,i,dataset_encoding)
         print("-"*20)
     
-#     print(bm25nns_df_paramaters)
-#     for i,linei in bm25nns_df_paramaters.iterrows():
-#         print("#"*10+" BM25 N.N.S. "+"#"*10)
-#         print(linei)
-#         bm25_nearest_neighbors_search(dataset_name,linei,i,dataset_encoding)
-#         print("-"*20)
+    print(bm25nns_df_paramaters)
+    for i,linei in bm25nns_df_paramaters.iterrows():
+        print("#"*10+" BM25 N.N.S. "+"#"*10)
+        print(linei)
+        bm25_nearest_neighbors_search(dataset_name,linei,i,dataset_encoding)
+        print("-"*20)
     
     for i,linei in pbinns_df_paramaters.iterrows():
         print("#"*10+" PBI N.N.S. "+"#"*10)
@@ -301,61 +301,61 @@ if __name__ == '__main__':
 #     
  
 # 
-#     b = pd.merge(cv_df_paramaters, nns_df_paramaters, how='inner', left_index=True, right_on=['input__filename_index',],)
-#  
-#     for rowi in b.iterrows():
-#         cv_index = rowi[1]['input__filename_index']
-#         bm25nns_index = rowi[0]
-#          
-#         print(cv_index,'-',lsht_index,'-',bm25nns_index)
-#         cv_file_path = h5_results_filename(dataset_name, 'cv', cv_index).replace('results','time')
-#         bm25nns_file_path = h5_results_filename(dataset_name, 'bm25nns', bm25nns_index).replace('results','results_evaluation')
-#         bm25nns_time_file_path = h5_results_filename(dataset_name, 'bm25nns', bm25nns_index).replace('results','time')
-#  
-#  
-#         approach_precisions = hdf_to_sparse_matrix('precisions', bm25nns_file_path)
-#         approach_recalls = hdf_to_sparse_matrix('recalls', bm25nns_file_path)
-#         average_precision = hdf_to_sparse_matrix('average_precisions', bm25nns_file_path).todense()
-#          
-#         b.loc[bm25nns_index,'MAP'] = average_precision.mean()
-#         b.loc[bm25nns_index,'MAP_std'] = average_precision.std()
-#         b.loc[bm25nns_index,'recall_mean'] = approach_recalls[:,-1].todense().mean()
-#         b.loc[bm25nns_index,'recall_std'] = approach_recalls[:,-1].todense().std()
-#         b.loc[bm25nns_index,'precision_mean'] = approach_precisions[:,-1].todense().mean()
-#         b.loc[bm25nns_index,'precision_std'] = approach_precisions[:,-1].todense().std()
-#          
-#         del approach_precisions, approach_recalls, average_precision
-#  
-#         b.loc[bm25nns_index,'documents_count'] = documents_count
-#         b.loc[bm25nns_index,'queries_count'] = queries_count
-#          
-#         with open(cv_file_path.replace('time.h5', 'vocabulary.pkl'),'rb') as f:
-#             b.loc[bm25nns_index,'vocabulary_size'] = len(pickle.load(f))
-#          
-#         b.loc[bm25nns_index,'indexing_mean_time'] = 0
-#         b.loc[bm25nns_index,'querying_mean_time'] = 0
-#  
-#         cv_time_dataframe = pd.read_hdf(cv_file_path, 'time_dataframe')
-#         b.loc[bm25nns_index,'cv_documents_mean_time'] = cv_time_dataframe.loc[0,'documents_mean_time'] 
-#         b.loc[bm25nns_index,'cv_queries_mean_time'] = cv_time_dataframe.loc[0,'queries_mean_time']
-#  
-#         b.loc[bm25nns_index,'indexing_mean_time'] += b.loc[bm25nns_index,'cv_documents_mean_time']
-#         b.loc[bm25nns_index,'querying_mean_time'] += b.loc[bm25nns_index,'cv_queries_mean_time']
-#         del cv_time_dataframe 
-#  
-#         bm25nns_time_dataframe = pd.read_hdf(bm25nns_time_file_path, 'time_dataframe')
-#         b.loc[bm25nns_index,'bm25nns_documents_mean_time'] = bm25nns_time_dataframe.loc[0,'documents_mean_time'] 
-#         b.loc[bm25nns_index,'bm25nns_queries_mean_time'] = bm25nns_time_dataframe.loc[0,'queries_mean_time']
-#  
-#         b.loc[bm25nns_index,'indexing_mean_time'] += b.loc[bm25nns_index,'bm25nns_documents_mean_time']
-#         b.loc[bm25nns_index,'querying_mean_time'] += b.loc[bm25nns_index,'bm25nns_queries_mean_time']
-#         del bm25nns_time_dataframe 
-#  
-#         print('bm25nns:')
-#         print("MAP = %4.2f[+-%4.2f]"%(b.loc[bm25nns_index,'MAP'],b.loc[bm25nns_index,'MAP_std']))
-#         print("recall = %4.2f[+-%4.2f]"%(b.loc[bm25nns_index,'recall_mean'],b.loc[bm25nns_index,'recall_std']))
-#         print("index time = %4.4f"%(b.loc[bm25nns_index,'cv_documents_mean_time']+b.loc[bm25nns_index,'bm25nns_documents_mean_time']))
-#         print("query time = %4.4f"%(b.loc[bm25nns_index,'cv_queries_mean_time']+b.loc[bm25nns_index,'bm25nns_queries_mean_time']))
-#  
-#     b.to_csv('%s%s_results.csv'%(today,dataset_name),sep='\t')    
+    b = pd.merge(cv_df_paramaters, nns_df_paramaters, how='inner', left_index=True, right_on=['input__filename_index',],)
+  
+    for rowi in b.iterrows():
+        cv_index = rowi[1]['input__filename_index']
+        bm25nns_index = rowi[0]
+          
+        print(cv_index,'-',lsht_index,'-',bm25nns_index)
+        cv_file_path = h5_results_filename(dataset_name, 'cv', cv_index).replace('results','time')
+        bm25nns_file_path = h5_results_filename(dataset_name, 'bm25nns', bm25nns_index).replace('results','results_evaluation')
+        bm25nns_time_file_path = h5_results_filename(dataset_name, 'bm25nns', bm25nns_index).replace('results','time')
+  
+  
+        approach_precisions = hdf_to_sparse_matrix('precisions', bm25nns_file_path)
+        approach_recalls = hdf_to_sparse_matrix('recalls', bm25nns_file_path)
+        average_precision = hdf_to_sparse_matrix('average_precisions', bm25nns_file_path).todense()
+          
+        b.loc[bm25nns_index,'MAP'] = average_precision.mean()
+        b.loc[bm25nns_index,'MAP_std'] = average_precision.std()
+        b.loc[bm25nns_index,'recall_mean'] = approach_recalls[:,-1].todense().mean()
+        b.loc[bm25nns_index,'recall_std'] = approach_recalls[:,-1].todense().std()
+        b.loc[bm25nns_index,'precision_mean'] = approach_precisions[:,-1].todense().mean()
+        b.loc[bm25nns_index,'precision_std'] = approach_precisions[:,-1].todense().std()
+          
+        del approach_precisions, approach_recalls, average_precision
+  
+        b.loc[bm25nns_index,'documents_count'] = documents_count
+        b.loc[bm25nns_index,'queries_count'] = queries_count
+          
+        with open(cv_file_path.replace('time.h5', 'vocabulary.pkl'),'rb') as f:
+            b.loc[bm25nns_index,'vocabulary_size'] = len(pickle.load(f))
+          
+        b.loc[bm25nns_index,'indexing_mean_time'] = 0
+        b.loc[bm25nns_index,'querying_mean_time'] = 0
+  
+        cv_time_dataframe = pd.read_hdf(cv_file_path, 'time_dataframe')
+        b.loc[bm25nns_index,'cv_documents_mean_time'] = cv_time_dataframe.loc[0,'documents_mean_time'] 
+        b.loc[bm25nns_index,'cv_queries_mean_time'] = cv_time_dataframe.loc[0,'queries_mean_time']
+  
+        b.loc[bm25nns_index,'indexing_mean_time'] += b.loc[bm25nns_index,'cv_documents_mean_time']
+        b.loc[bm25nns_index,'querying_mean_time'] += b.loc[bm25nns_index,'cv_queries_mean_time']
+        del cv_time_dataframe 
+  
+        bm25nns_time_dataframe = pd.read_hdf(bm25nns_time_file_path, 'time_dataframe')
+        b.loc[bm25nns_index,'bm25nns_documents_mean_time'] = bm25nns_time_dataframe.loc[0,'documents_mean_time'] 
+        b.loc[bm25nns_index,'bm25nns_queries_mean_time'] = bm25nns_time_dataframe.loc[0,'queries_mean_time']
+  
+        b.loc[bm25nns_index,'indexing_mean_time'] += b.loc[bm25nns_index,'bm25nns_documents_mean_time']
+        b.loc[bm25nns_index,'querying_mean_time'] += b.loc[bm25nns_index,'bm25nns_queries_mean_time']
+        del bm25nns_time_dataframe 
+  
+        print('bm25nns:')
+        print("MAP = %4.2f[+-%4.2f]"%(b.loc[bm25nns_index,'MAP'],b.loc[bm25nns_index,'MAP_std']))
+        print("recall = %4.2f[+-%4.2f]"%(b.loc[bm25nns_index,'recall_mean'],b.loc[bm25nns_index,'recall_std']))
+        print("index time = %4.4f"%(b.loc[bm25nns_index,'cv_documents_mean_time']+b.loc[bm25nns_index,'bm25nns_documents_mean_time']))
+        print("query time = %4.4f"%(b.loc[bm25nns_index,'cv_queries_mean_time']+b.loc[bm25nns_index,'bm25nns_queries_mean_time']))
+  
+    b.to_csv('%s%s_results.csv'%(today,dataset_name),sep='\t')    
 
