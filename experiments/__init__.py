@@ -4,6 +4,7 @@ import os.path
 from time import time
 import pandas as pd
 import json
+import gensim
 
 from sklearn.pipeline import Pipeline
 from sklearn.grid_search import ParameterGrid
@@ -20,7 +21,7 @@ from datetime import datetime
 from pprint import pprint
 
 from PermutationBasedIndex import PBINearestNeighbors
-from PermutationBasedIndex.pivotSelection import reference_set_selection, kMedoids, kmeans,random_select_pivot,birch
+from PermutationBasedIndex.pivotSelection import reference_set_selection, kMedoids, kmeans,random_select_pivot,birch,kmedoidwv
 
 from locality_sensitive_hashing import LSHTransformer, LSHIINearestNeighbors, InvertedIndexNearestNeighbors,BM25NearestNeighbors
  
@@ -176,12 +177,33 @@ def tokenize_by_parameters(documents,queries,target,dataset_name, cv_parameters_
         parameters['cv__encoding'] = encoding
     
         pipe_to_exec.set_params(**cv_parameters_dataframe_line)
-    
+        
+        
         t0 = time()
         td_documents = pipe_to_exec.fit_transform(documents, None)
         documents_elapsed_time = (time()-t0) / td_documents.shape[0]
         sparse_matrix_to_hdf(td_documents,'documents',file_path)
         print('documents:',td_documents.shape)
+        
+        
+        t0 = time()
+        model = gensim.models.KeyedVectors.load_word2vec_format('GoogleNews-vectors-negative300.bin', binary=True)
+        documentsWords = list(pipe_to_exec.steps[0][1].vocabulary_.keys())
+        
+        matrix = np.zeros([documentsWords.__len__(),300])
+        
+        for i in range(0,documentsWords.__len__()):
+            if documentsWords[i] in model.vocab:
+                word = model[documentsWords[i]]
+                matrix[i,:] = word
+        
+        with open(file_path.replace('results.h5', 'words_in_vec.pkl'),'wb') as f:
+            pickle.dump(matrix,f)
+            
+        with open(file_path.replace('results.h5', 'words.pkl'),'wb') as f:
+            pickle.dump(documentsWords,f)
+        timeCreateWordVec = time()-t0
+        print("time to create a words2vec matrix: "+str(timeCreateWordVec))
         del td_documents
     
         t0 = time()
@@ -196,6 +218,7 @@ def tokenize_by_parameters(documents,queries,target,dataset_name, cv_parameters_
         time_dataframe = pd.DataFrame({
                    'documents_mean_time' : [documents_elapsed_time],
                    'queries_mean_time' : [queries_elapsed_time],
+                   'timeCreateWordVec' : [timeCreateWordVec],
                    })
         time_dataframe.to_hdf(file_path.replace('results.h5', 'time.h5'), 'time_dataframe')
     
@@ -382,7 +405,15 @@ def pbinearest_neighbors_search(dataset_name, nns_parameters_dataframe_line, nns
         pivot_parameters = nns_parameters_dataframe_line["pbinns__pivot_parameters"]        
         vocabulary_file_path = dataset_name +"_cv_" + str(indexi) +"_vocabulary.pkl" 
         with open(vocabulary_file_path,'rb') as f:
-            pivot_parameters["pbinns__vocabulary"] = pickle.load(f)        
+            pivot_parameters["pbinns__vocabulary"] = pickle.load(f)
+            
+        matrix_wordvec = dataset_name +"_cv_" + str(indexi) +"_words_in_vec.pkl" 
+        with open(matrix_wordvec,'rb') as f:
+            pivot_parameters["pbinns__words_in_vec"] = pickle.load(f) 
+        
+        matrix_words = dataset_name +"_cv_" + str(indexi) +"_words.pkl" 
+        with open(matrix_words,'rb') as f:
+            pivot_parameters["pbinns__words"] = pickle.load(f)       
 #         nns_parameters_dataframe_line_index["pbinns__pivot_parameters"] = pivot_parameters
        
     file_path = h5_results_filename(dataset_name, technique_name, nns_parameters_dataframe_line_index)

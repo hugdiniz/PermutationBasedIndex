@@ -13,7 +13,7 @@ from locality_sensitive_hashing import LSHTransformer, minmax_hashing, LSHIINear
     justCSAFullBound_hashing
     
 from PermutationBasedIndex import PBINearestNeighbors
-from PermutationBasedIndex.pivotSelection import reference_set_selection, kMedoids, kmeans,random_select_pivot,birch
+from PermutationBasedIndex.pivotSelection import reference_set_selection, kMedoids, kmeans,random_select_pivot,birch,kmedoidwv
 from PermutationBasedIndex.experiments import *
 
 
@@ -26,14 +26,14 @@ if __name__ == '__main__':
         storing it as pandas Dataframes on hdf
     '''
 #    dataset_name = "pan11"
-    dataset_name = "pan10"
+#    dataset_name = "pan10"
 #    dataset_name = "psa"
 
 
 
-#    dataset_name,sample_size = "pan10-%d-samples",10 
-#    dataset_name = dataset_name%(sample_size)
-    queries_percentage = 50
+    dataset_name,sample_size = "pan10-%d-samples",10 
+    dataset_name = dataset_name%(sample_size)
+    queries_percentage = 90
 #    queries_percentage = 90
 
     cv_parameters = {
@@ -58,7 +58,7 @@ if __name__ == '__main__':
     }
     
     lsht_parameters = {
-        "lsht__n_permutations" : (12,24,),
+        "lsht__n_permutations" : (12,),
         "lsht__selection_function" : (
                                      minmax_hashing,                                  
                                       ),
@@ -69,7 +69,7 @@ if __name__ == '__main__':
     
     lshnns_parameters = {
 
-        "lshnns__n_neighbors" : (10,20,40,),
+        "lshnns__n_neighbors" : (10,),
 #        "lshnns__n_neighbors" : (20,),
         "lshnns__sort_neighbors" : (False,),
                          
@@ -94,18 +94,9 @@ if __name__ == '__main__':
         "pbinns__pivot_parameters" : (             
         
         json.dumps({          
-             "pivot_selection_function" :kMedoids.__name__ ,       
-             "k" : 20,                      
-         }),
-        
-        json.dumps({          
-             "pivot_selection_function" :reference_set_selection.__name__ ,       
-             "k" : 20,                        
-         }),
-        
-        json.dumps({          
-             "pivot_selection_function" :random_select_pivot.__name__ ,       
-             "k" : 20,                         
+             "pivot_selection_function" :kmedoidwv.__name__ ,       
+             "k" : 20,
+             "use_word_embeddings": True,                      
          }),
 ),
 }
@@ -186,19 +177,19 @@ if __name__ == '__main__':
         lsh_transform(dataset_name,linei,i,dataset_encoding)
 # # 
 # # 
-    for i,linei in lshnns_df_paramaters.iterrows():
-        print("#"*10+" LSH N.N.S. "+"#"*10)
-        print(linei)
-        lsh_nearest_neighbors_search(dataset_name,linei,i,dataset_encoding)
-        print("-"*20)
-    
-    print(bm25nns_df_paramaters)
-    for i,linei in bm25nns_df_paramaters.iterrows():
-        print("#"*10+" BM25 N.N.S. "+"#"*10)
-        print(linei)
-        bm25_nearest_neighbors_search(dataset_name,linei,i,dataset_encoding)
-        print("-"*20)
-    
+#     for i,linei in lshnns_df_paramaters.iterrows():
+#         print("#"*10+" LSH N.N.S. "+"#"*10)
+#         print(linei)
+#         lsh_nearest_neighbors_search(dataset_name,linei,i,dataset_encoding)
+#         print("-"*20)
+#     
+#     print(bm25nns_df_paramaters)
+#     for i,linei in bm25nns_df_paramaters.iterrows():
+#         print("#"*10+" BM25 N.N.S. "+"#"*10)
+#         print(linei)
+#         bm25_nearest_neighbors_search(dataset_name,linei,i,dataset_encoding)
+#         print("-"*20)
+#     
     for i,linei in pbinns_df_paramaters.iterrows():
         print("#"*10+" PBI N.N.S. "+"#"*10)
         print(linei)
