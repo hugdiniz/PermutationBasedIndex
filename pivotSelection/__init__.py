@@ -7,6 +7,8 @@ from time import time
 from sklearn.metrics.pairwise import pairwise_distances
 from sklearn.cluster import KMeans,Birch
 from random import sample
+from sklearn.decomposition import PCA
+
 
 def random_select_pivot(X,parameters = {}):
     '''
@@ -211,6 +213,8 @@ def birch(X, parameters = {}):
     M = birch.subcluster_centers_
     
     return np.array(M), time()-t0
+
+
 def kmedoidwv(X, parameters = {}):
     t0 = time()
     if("function_distance" in parameters):
@@ -226,19 +230,30 @@ def kmedoidwv(X, parameters = {}):
         k = parameters["k"]
     else:
         k = 10
+        
+    if("tmax" in parameters):
+        tmax = parameters["tmax"]
+    else:
+        tmax = 100
+        
+    if("distance_metric" in parameters):
+        distance_metric = parameters["distance_metric"]
+    else:
+        distance_metric = "jaccard"
     
-    dictParametersTokenized = parameters["pbinns__vocabulary"]
-    word_vectors = KeyedVectors.load_word2vec_format('GoogleNews-vectors-negative300.bin', binary=True)
-#     word_vectors.get_vector("king")
-#     model.most_similar(positive=[your_word_vector], topn=1)
     t0 = time()
     
-    keys = list(dictParametersTokenized.keys())
-    
-    D = np.array([ word_vectors.get_vector(keys[x]) for x in range(keys.__len__()) ])
+    keys = parameters["pbinns__words"]
+    t1 = time()
+    if(distance_metric == "jaccard"):
+        pca = PCA(n_components=5)
+        D = f_distance_metric(pca.fit_transform(parameters["pbinns__words_in_vec"]),metric_distance=distance_metric)
+    else:
+        D = f_distance_metric(parameters["pbinns__words_in_vec"].todense())
               
     m, n = D.shape
-
+    print("time to create a distance_metric"+str(time() - t1))
+    
     if k > n:
         raise Exception('too many medoids')
     # randomly initialize an array of k medoid indices
