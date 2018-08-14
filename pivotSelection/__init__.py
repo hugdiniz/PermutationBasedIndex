@@ -245,12 +245,13 @@ def kmedoidwv(X, parameters = {}):
     
     keys = parameters["pbinns__words"]
     t1 = time()
-    if(distance_metric == "jaccard"):
-        pca = PCA(n_components=5)
-        D = f_distance_metric(pca.fit_transform(parameters["pbinns__words_in_vec"]),metric_distance=distance_metric)
-    else:
-        D = f_distance_metric(parameters["pbinns__words_in_vec"].todense())
-              
+#     if(distance_metric == "jaccard"):
+#         
+#         D = f_distance_metric(pca.fit_transform(parameters["pbinns__words_in_vec"]),metric_distance=distance_metric)
+#     else:
+#         D = f_distance_metric(parameters["pbinns__words_in_vec"].todense())
+    D = parameters["pbinns__words_in_vec"]
+    
     m, n = D.shape
     print("time to create a distance_metric"+str(time() - t1))
     

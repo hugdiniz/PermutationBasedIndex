@@ -190,12 +190,15 @@ def tokenize_by_parameters(documents,queries,target,dataset_name, cv_parameters_
         model = gensim.models.KeyedVectors.load_word2vec_format('GoogleNews-vectors-negative300.bin', binary=True)
         documentsWords = list(pipe_to_exec.steps[0][1].vocabulary_.keys())
         
-        matrix = np.zeros([documentsWords.__len__(),300])
+        matrix = lil_matrix((documentsWords.__len__(),documentsWords.__len__()))
         
         for i in range(0,documentsWords.__len__()):
             if documentsWords[i] in model.vocab:
-                word = model[documentsWords[i]]
-                matrix[i,:] = word
+                for j in range(i,documentsWords.__len__()):
+                     if documentsWords[j] in model.vocab:
+                        similarity = model.similarity(documentsWords[i], documentsWords[j])
+                        matrix[i,j] = similarity
+                        matrix[j,i] = similarity
         
         with open(file_path.replace('results.h5', 'words_in_vec.pkl'),'wb') as f:
             pickle.dump(matrix,f)
