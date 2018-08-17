@@ -5,6 +5,7 @@ from time import time
 import pandas as pd
 import json
 import gensim
+import re
 
 from sklearn.pipeline import Pipeline
 from sklearn.grid_search import ParameterGrid
@@ -168,6 +169,63 @@ def tokenize_by_parameters(documents,queries,target,dataset_name, cv_parameters_
     start_time = time()
     file_path = h5_results_filename(dataset_name, 'cv', cv_parameters_dataframe_line_index) #"%s_cv_%d_results.h5"%(dataset_name,cv_parameters_dataframe_line_index)
     
+    if not os.path.exists('words_in_vec.pkl'):
+        t0 = time()
+        model = gensim.models.KeyedVectors.load_word2vec_format('GoogleNews-vectors-negative300.bin', binary=True)
+        words = []
+        for i in range(documents.__len__()):
+            text = str(documents[i])
+            text = text.replace("\\n", " ")
+            text = text.replace("\\xbb", " ")
+            text = text.replace("\\xbf", " ")
+            text = text.replace("\\xef", " ")
+            text = text.replace('"', " ")
+            text = text.replace("'b", " ")
+            text = text.replace("\\", " ")
+            text = text.replace("/", " ")
+            text = text.replace(":", " ")
+            text = text.replace(",", " ")
+            text = text.replace(".", " ")
+            text = text.replace(";", " ")
+            text = text.replace("?", " ")
+            text = text.replace("^", " ")
+            text = text.replace("~", " ")
+            text = text.replace("`", " ")
+            text = text.replace("{", " ")
+            text = text.replace("}", " ")
+            text = text.replace("[", " ")
+            text = text.replace("]", " ")
+            text = text.replace("#", " ")
+            text = text.replace("$", " ")
+            text = text.replace("*", " ")
+            text = text.replace("(", " ")
+            text = text.replace(")", " ")
+            text = re.sub(" +",' ',text)
+            
+            for word in text.split(" "):
+                if word not in words:
+                    if word in model.vocab:                
+                        words.append(word)
+            
+        
+        matrix = lil_matrix((words.__len__(),words.__len__()))
+        
+        for i in range(0,words.__len__()):           
+            for j in range(i,words.__len__()):
+                similarity = model.similarity(words[i], words[j])
+                matrix[i,j] = similarity
+                matrix[j,i] = similarity                        
+        
+        
+        del model
+        with open(file_path.replace('results.h5', 'words_in_vec.pkl'),'wb') as f:
+            pickle.dump(matrix,f)
+            
+        with open(file_path.replace('results.h5', 'words.pkl'),'wb') as f:
+            pickle.dump(words,f)
+        timeCreateWordVec = time()-t0
+        print("time to create a words2vec matrix: "+str(timeCreateWordVec))
+    
     if os.path.exists(file_path):
         print(file_path,' already exists!')
     else:
@@ -184,29 +242,7 @@ def tokenize_by_parameters(documents,queries,target,dataset_name, cv_parameters_
         documents_elapsed_time = (time()-t0) / td_documents.shape[0]
         sparse_matrix_to_hdf(td_documents,'documents',file_path)
         print('documents:',td_documents.shape)
-        
-        
-        t0 = time()
-        model = gensim.models.KeyedVectors.load_word2vec_format('GoogleNews-vectors-negative300.bin', binary=True)
-        documentsWords = list(pipe_to_exec.steps[0][1].vocabulary_.keys())
-        
-        matrix = lil_matrix((documentsWords.__len__(),documentsWords.__len__()))
-        
-        for i in range(0,documentsWords.__len__()):
-            if documentsWords[i] in model.vocab:
-                for j in range(i,documentsWords.__len__()):
-                     if documentsWords[j] in model.vocab:
-                        similarity = model.similarity(documentsWords[i], documentsWords[j])
-                        matrix[i,j] = similarity
-                        matrix[j,i] = similarity
-        
-        with open(file_path.replace('results.h5', 'words_in_vec.pkl'),'wb') as f:
-            pickle.dump(matrix,f)
-            
-        with open(file_path.replace('results.h5', 'words.pkl'),'wb') as f:
-            pickle.dump(documentsWords,f)
-        timeCreateWordVec = time()-t0
-        print("time to create a words2vec matrix: "+str(timeCreateWordVec))
+
         del td_documents
     
         t0 = time()
