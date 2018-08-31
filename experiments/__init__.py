@@ -22,7 +22,7 @@ from datetime import datetime
 from pprint import pprint
 
 from PermutationBasedIndex import PBINearestNeighbors
-from PermutationBasedIndex.pivotSelection import reference_set_selection, kMedoids, kmeans,random_select_pivot,birch,kmedoidwv
+from PermutationBasedIndex.pivotSelection import reference_set_selection, kMedoids, kmeans,random_select_pivot,birch,kmedoidwv,reference_set_selection_wv
 
 from locality_sensitive_hashing import LSHTransformer, LSHIINearestNeighbors, InvertedIndexNearestNeighbors,BM25NearestNeighbors
  
@@ -169,7 +169,7 @@ def tokenize_by_parameters(documents,queries,target,dataset_name, cv_parameters_
     start_time = time()
     file_path = h5_results_filename(dataset_name, 'cv', cv_parameters_dataframe_line_index) #"%s_cv_%d_results.h5"%(dataset_name,cv_parameters_dataframe_line_index)
     
-    if not os.path.exists('words_in_vec.pkl'):
+    if not os.path.exists(file_path.replace('results.h5', 'words_in_vec.pkl')):
         t0 = time()
         model = gensim.models.KeyedVectors.load_word2vec_format('GoogleNews-vectors-negative300.bin', binary=True)
         words = []
@@ -208,21 +208,31 @@ def tokenize_by_parameters(documents,queries,target,dataset_name, cv_parameters_
                         words.append(word)
             
         
-        matrix = lil_matrix((words.__len__(),words.__len__()))
+        timeCreateWordVec = time()-t0
+        print("time to create a load dataset: "+str(timeCreateWordVec))
         
-        for i in range(0,words.__len__()):           
-            for j in range(i,words.__len__()):
-                similarity = model.similarity(words[i], words[j])
-                matrix[i,j] = similarity
-                matrix[j,i] = similarity                        
+        with open(file_path.replace('results.h5', 'words.pkl'),'wb') as f:
+            pickle.dump(words,f)
+        w  = np.array(words)
+        del words
         
-        
+        matrix = csr_matrix((w.size,w.size), dtype=np.float32) 
+        for i in range(w.size):
+            matrix[i,i:] = np.where(True,model.similarity(w[i:],w[i]),0)
+       
         del model
+        #for i in range(0,words.__len__()):           
+        #    for j in range(i,words.__len__()):
+        #        similarity = model.similarity(words[i], words[j])
+        #        matrix[i,j] = similarity
+        #        matrix[j,i] = similarity                        
+        
+        
+        
         with open(file_path.replace('results.h5', 'words_in_vec.pkl'),'wb') as f:
             pickle.dump(matrix,f)
             
-        with open(file_path.replace('results.h5', 'words.pkl'),'wb') as f:
-            pickle.dump(words,f)
+        
         timeCreateWordVec = time()-t0
         print("time to create a words2vec matrix: "+str(timeCreateWordVec))
     
