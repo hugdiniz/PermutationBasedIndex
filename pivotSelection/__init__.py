@@ -8,7 +8,7 @@ from sklearn.metrics.pairwise import pairwise_distances
 from sklearn.cluster import KMeans,Birch
 from random import sample
 from sklearn.decomposition import PCA
-
+from pyclustering.cluster.kmedoids import kmedoids
 
 def random_select_pivot(X,parameters = {}):
     '''
@@ -215,7 +215,7 @@ def birch(X, parameters = {}):
     return np.array(M), time()-t0
 
 
-def kmedoidwv(X, parameters = {}):
+def kmedoidwv_old(X, parameters = {}):
     t0 = time()
     if("function_distance" in parameters):
         f_distance_metric = parameters["function_distance"]
@@ -291,4 +291,109 @@ def kmedoidwv(X, parameters = {}):
     indexX = [dictParametersTokenized(keys[m]) for m in M]
     # return results
     return X[indexX,:],time()-t0
+
+
+import sys
+def kmedoidwv(X, parameters = {}):    
+    
+    sys.setrecursionlimit(1500000)
+    if("k" in parameters):
+        k = parameters["k"]
+    else:
+        k = 10
+        
+    if("tmax" in parameters):
+        tmax = parameters["tmax"]
+    else:
+        tmax = 100
+        
+    
+    matrixww = parameters["pbinns__words_in_vec"]
+    words = parameters["pbinns__words"]
+    vocabulary_ = parameters["pbinns__vocabulary"]
+    
+    t0 = time()
+    randArray = np.array(words[:100])
+    np.random.shuffle(randArray)
+    randArray = randArray[:k]
+    
+    kmModel = kmedoids(matrixww.toarray(),randArray)
+    kmModel.process()
+    
+    medoids = kmModel.get_medoids()
+    
+    original_index = [vocabulary_[words[medoid]] for medoid in medoids]
+    
+    return X[original_index,:],time()-t0
+    
+    
+    
+
+def reference_set_selection_wv(X,parameters = {}):
+    '''
+        Distributed Selection: close reference points are neglected based on a threshold
+         
+    ''' 
+
+    '''
+        randomly selects the first reference point
+    '''
+    
+    matrixww = parameters["pbinns__words_in_vec"]
+    words = parameters["pbinns__words"]
+    vocabulary_ = parameters["pbinns__vocabulary"]
+    
+    if("k" in parameters):
+        reference_set_size = parameters["k"]
+    else:
+        reference_set_size = 25
+    if("function_distance" in parameters):
+        f_distance_metric = parameters["function_distance"]
+    else:
+        f_distance_metric = pairwise_cosine_distance
+    if("distance_metric" in parameters):
+        distance_metric = parameters["distance_metric"]
+    else:
+        distance_metric = "euclidean"    
+    if("ref_sel_threshold" in parameters):
+        ref_sel_threshold = parameters["ref_sel_threshold"]
+    else:
+        ref_sel_threshold = 0.04
+    
+    t0 = time()
+    ids = []
+    
+    size_id = np.zeros(reference_set_size)    
+    current_id = ceil(matrixww.shape[0]/2)
+    except_current_id = np.arange(matrixww.shape[0])!=current_id
+    ids.append(np.nonzero(matrixww[current_id,except_current_id] >= ref_sel_threshold)[1][0])
+
+    i = 1        
+    while i < matrixww[:,:].shape[0]  and ids.__len__() < reference_set_size:
+        if(np.all(matrixww[ids,i].toarray() >= ref_sel_threshold)):
+            ids.append(i)
+        i = i + 1
+      
+        
+    
+    original_index = [] #[vocabulary_[words[medoid]] for medoid in set_id]
+    
+    for medoid in ids:
+        print(words[medoid])
+        if words[medoid] in vocabulary_.keys():
+            original_index.append(vocabulary_[words[medoid]])
+    
+    return X[original_index,:],time()-t0
+
+    
+    
+def f_similarity_matrix(w,model):
+    a = np.zeros([w.size,w.size])    
+    for i in range(w.size):
+        a[i,i:] = np.where(True,model.similarity(w[i:],w[i]),0)
+    return a
+
+
+
+
 
