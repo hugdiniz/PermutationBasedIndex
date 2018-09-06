@@ -173,52 +173,57 @@ def tokenize_by_parameters(documents,queries,target,dataset_name, cv_parameters_
         t0 = time()
         model = gensim.models.KeyedVectors.load_word2vec_format('GoogleNews-vectors-negative300.bin', binary=True)
         words = []
-        for i in range(documents.__len__()):
-            text = str(documents[i])
-            text = text.replace("\\n", " ")
-            text = text.replace("\\xbb", " ")
-            text = text.replace("\\xbf", " ")
-            text = text.replace("\\xef", " ")
-            text = text.replace('"', " ")
-            text = text.replace("'b", " ")
-            text = text.replace("\\", " ")
-            text = text.replace("/", " ")
-            text = text.replace(":", " ")
-            text = text.replace(",", " ")
-            text = text.replace(".", " ")
-            text = text.replace(";", " ")
-            text = text.replace("?", " ")
-            text = text.replace("^", " ")
-            text = text.replace("~", " ")
-            text = text.replace("`", " ")
-            text = text.replace("{", " ")
-            text = text.replace("}", " ")
-            text = text.replace("[", " ")
-            text = text.replace("]", " ")
-            text = text.replace("#", " ")
-            text = text.replace("$", " ")
-            text = text.replace("*", " ")
-            text = text.replace("(", " ")
-            text = text.replace(")", " ")
-            text = re.sub(" +",' ',text)
+        if not os.path.exists(file_path.replace('results.h5', 'words.pkl')):
+            for i in range(documents.__len__()):
+                text = str(documents[i])
+                text = text.replace("\\n", " ")
+                text = text.replace("\\xbb", " ")
+                text = text.replace("\\xbf", " ")
+                text = text.replace("\\xef", " ")
+                text = text.replace('"', " ")
+                text = text.replace("'b", " ")
+                text = text.replace("\\", " ")
+                text = text.replace("/", " ")
+                text = text.replace(":", " ")
+                text = text.replace(",", " ")
+                text = text.replace(".", " ")
+                text = text.replace(";", " ")
+                text = text.replace("?", " ")
+                text = text.replace("^", " ")
+                text = text.replace("~", " ")
+                text = text.replace("`", " ")
+                text = text.replace("{", " ")
+                text = text.replace("}", " ")
+                text = text.replace("[", " ")
+                text = text.replace("]", " ")
+                text = text.replace("#", " ")
+                text = text.replace("$", " ")
+                text = text.replace("*", " ")
+                text = text.replace("(", " ")
+                text = text.replace(")", " ")
+                text = re.sub(" +",' ',text)
+                
+                for word in text.split(" "):
+                    if word not in words:
+                        if word in model.vocab:                
+                            words.append(word)
+                
             
-            for word in text.split(" "):
-                if word not in words:
-                    if word in model.vocab:                
-                        words.append(word)
+            timeCreateWordVec = time()-t0
+            print("time to create a load dataset: "+str(timeCreateWordVec))
             
+            with open(file_path.replace('results.h5', 'words.pkl'),'wb') as f:
+                pickle.dump(words,f)
         
-        timeCreateWordVec = time()-t0
-        print("time to create a load dataset: "+str(timeCreateWordVec))
+        w = []
+        with open(file_path.replace('results.h5', 'words.pkl'),'rb') as f:
+            words = pickle.load(f)
+            w  = np.array(words)
+            del words
         
-        with open(file_path.replace('results.h5', 'words.pkl'),'wb') as f:
-            pickle.dump(words,f)
-        w  = np.array(words)
-        del words
-        
-        matrix = csr_matrix((w.size,w.size), dtype=np.float32) 
+        matrix = np.memmap(file_path.replace('results.h5', 'words_in_vec.pkl'), mode='w+', shape=(w.size,w.size),dtype=np.float16)
         for i in range(w.size):
-            matrix[i,i:] = np.where(True,model.similarity(w[i:],w[i]),0)
+            matrix[i,i:] = np.array(np.where(True,model.similarity(w[i:],w[i]),0),dtype=np.float16)
        
         del model
         #for i in range(0,words.__len__()):           
@@ -229,8 +234,8 @@ def tokenize_by_parameters(documents,queries,target,dataset_name, cv_parameters_
         
         
         
-        with open(file_path.replace('results.h5', 'words_in_vec.pkl'),'wb') as f:
-            pickle.dump(matrix,f)
+        #with open(file_path.replace('results.h5', 'words_in_vec.pkl'),'wb') as f:
+        #    pickle.dump(matrix,f)
             
         
         timeCreateWordVec = time()-t0
@@ -457,8 +462,9 @@ def pbinearest_neighbors_search(dataset_name, nns_parameters_dataframe_line, nns
             pivot_parameters["pbinns__vocabulary"] = pickle.load(f)
             
         matrix_wordvec = dataset_name +"_cv_" + str(indexi) +"_words_in_vec.pkl" 
-        with open(matrix_wordvec,'rb') as f:
-            pivot_parameters["pbinns__words_in_vec"] = pickle.load(f) 
+        fnemmap = np.memmap(matrix_wordvec, dtype='float16', mode='r', shape=(w.size,w.size))
+        pivot_parameters["pbinns__words_in_vec"]  = np.array(fnemmap,dtype='float16')
+        del fnemmap
         
         matrix_words = dataset_name +"_cv_" + str(indexi) +"_words.pkl" 
         with open(matrix_words,'rb') as f:
