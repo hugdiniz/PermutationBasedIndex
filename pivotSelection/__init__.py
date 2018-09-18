@@ -327,6 +327,52 @@ def kmedoidwv(X, parameters = {}):
     return X[original_index,:],time()-t0
     
     
+def psis(X,parameters = {}):
+    '''
+        Distributed Selection: close reference points are neglected based on a threshold
+         
+    ''' 
+
+    '''
+        randomly selects the first reference point
+    '''
+    
+    
+    if("k" in parameters):
+        reference_set_size = parameters["k"]
+    else:
+        reference_set_size = 25
+    if("function_distance" in parameters):
+        f_distance_metric = parameters["function_distance"]
+    else:
+        f_distance_metric = pairwise_cosine_distance
+    if("distance_metric" in parameters):
+        distance_metric = parameters["distance_metric"]
+    else:
+        distance_metric = "euclidean"    
+    if("ref_sel_threshold" in parameters):
+        ref_sel_threshold = parameters["ref_sel_threshold"]
+    else:
+        ref_sel_threshold = 1200
+    
+    t0 = time()
+    ids = []
+    
+    matrixDistance = np.array(f_distance_metric(X))
+    
+    size_id = np.zeros(reference_set_size)    
+    current_id = ceil(matrixDistance.shape[0]/2)
+    except_current_id = np.arange(matrixDistance.shape[0])!=current_id
+    ids.append(np.nonzero(matrixDistance[current_id,except_current_id] >= ref_sel_threshold)[0][0])
+
+    i = 1        
+    while i < matrixDistance[:,:].shape[0]  and ids.__len__() < reference_set_size:
+        if(np.all(matrixDistance[ids,i] >= ref_sel_threshold)):
+            ids.append(i)
+        i = i + 1
+    
+    return X[ids,:],time()-t0
+    
     
 
 def reference_set_selection_wv(X,parameters = {}):
