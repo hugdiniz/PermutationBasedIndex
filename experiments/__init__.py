@@ -225,20 +225,13 @@ def tokenize_by_parameters(documents,queries,target,dataset_name, cv_parameters_
         for i in range(w.size):
             matrix[i,i:] = np.array(np.where(True,model.similarity(w[i:],w[i]),0),dtype=np.float16)
        
-        del model
-        #for i in range(0,words.__len__()):           
-        #    for j in range(i,words.__len__()):
-        #        similarity = model.similarity(words[i], words[j])
-        #        matrix[i,j] = similarity
-        #        matrix[j,i] = similarity                        
-        
-        
-        
-        #with open(file_path.replace('results.h5', 'words_in_vec.pkl'),'wb') as f:
-        #    pickle.dump(matrix,f)
-            
+        del model     
         
         timeCreateWordVec = time()-t0
+        time_word_vec_dataframe = pd.DataFrame({                   
+                   'timeCreateWordVec' : [timeCreateWordVec],
+                   })
+        time_dataframe.to_hdf(file_path.replace('results.h5', 'time_ww.h5'), 'time_ww_dataframe')
         print("time to create a words2vec matrix: "+str(timeCreateWordVec))
     
     if os.path.exists(file_path):
@@ -271,8 +264,7 @@ def tokenize_by_parameters(documents,queries,target,dataset_name, cv_parameters_
         
         time_dataframe = pd.DataFrame({
                    'documents_mean_time' : [documents_elapsed_time],
-                   'queries_mean_time' : [queries_elapsed_time],
-                   'timeCreateWordVec' : [timeCreateWordVec],
+                   'queries_mean_time' : [queries_elapsed_time],                   
                    })
         time_dataframe.to_hdf(file_path.replace('results.h5', 'time.h5'), 'time_dataframe')
     
