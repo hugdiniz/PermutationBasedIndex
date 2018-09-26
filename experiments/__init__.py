@@ -447,12 +447,12 @@ def pbinearest_neighbors_search(dataset_name, nns_parameters_dataframe_line, nns
             pivot_parameters["pbinns__vocabulary"] = pickle.load(f)
             
         matrix_wordvec = dataset_name +"_cv_" + str(indexi) +"_words_in_vec.pkl" 
-        with open(matrix_wordvec,'rb') as f:
-            pivot_parameters["pbinns__words_in_vec"] = pickle.load(f) 
-        
-        matrix_words = dataset_name +"_cv_" + str(indexi) +"_words.pkl" 
-        with open(matrix_words,'rb') as f:
-            pivot_parameters["pbinns__words"] = pickle.load(f)       
+#         with open(matrix_wordvec,'rb') as f:
+#             pivot_parameters["pbinns__words_in_vec"] = pickle.load(f) 
+#         
+#         matrix_words = dataset_name +"_cv_" + str(indexi) +"_words.pkl" 
+#         with open(matrix_words,'rb') as f:
+#             pivot_parameters["pbinns__words"] = pickle.load(f)       
 #         nns_parameters_dataframe_line_index["pbinns__pivot_parameters"] = pivot_parameters
        
     file_path = h5_results_filename(dataset_name, technique_name, nns_parameters_dataframe_line_index)
