@@ -25,15 +25,15 @@ if __name__ == '__main__':
         creating TfIdfVectorizer, LSHTransformer and LSHIINearestNeighbors parameters grids and
         storing it as pandas Dataframes on hdf
     '''
-#    dataset_name = "pan11"
+    dataset_name = "pan11"
 #    dataset_name = "pan10"
 #    dataset_name = "psa"
 
 
 
-    dataset_name,sample_size = "pan10-%d-samples",10 
-    dataset_name = dataset_name%(sample_size)
-    queries_percentage = 90
+#    dataset_name,sample_size = "pan10-%d-samples",10 
+#    dataset_name = dataset_name%(sample_size)
+    queries_percentage = 100
 #    queries_percentage = 90
 
     cv_parameters = {
