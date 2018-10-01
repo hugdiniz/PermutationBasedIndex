@@ -29,6 +29,11 @@ class PermutationBasedIndex(InvertedIndex):
             self.pivot_parameters = self.parameters["pbinns__pivot_parameters"]
         else:
             self.pivot_parameters = {}
+        
+        if("pbinns__punishment_type" in self.parameters):
+            self.punishment_type = self.parameters["pbinns__punishment_type"]
+        else:
+            self.punishment_type = None;
   
     
     def relative_ordered_list(self, X, d_index):
@@ -88,8 +93,17 @@ class PermutationBasedIndex(InvertedIndex):
         ----------
         X : sparse matrix, [n_samples, n_features]
         """
-
-
+        if(self.punishment_type == None or self.punishment_type == 'none'):
+            penalty = 0
+        elif(self.punishment_type == 'minimum'):
+            penalty = self.prunning_size + 1
+        elif(self.punishment_type == 'mean'):
+            penalty = (self.prunning_size + self.pivot_parameters.shape[0])/2 
+        elif(self.punishment_type == 'maximum'):
+            penalty = self.pivot_parameters.shape[0]
+        else:
+            penalty = 0
+            
         scores = np.zeros((X.shape[0], self.collection_size))
         
         time_to_score = 0
@@ -107,7 +121,8 @@ class PermutationBasedIndex(InvertedIndex):
                 for x in range(q_list_in_r.shape[0]):
                     if(self.r_map[j].__contains__(q_list_in_r[x])):
                         scores[q_index,j] = scores[q_index,j] +  abs(x - self.r_map[j][ q_list_in_r[x] ])
-
+                    else:
+                        scores[q_index,j] = scores[q_index,j] +  penalty
                 
                 #scores[q_index,j] = sum([abs(x - self.r_map[j][ q_list_in_r[x] ]) for x in range(q_list_in_r.shape[0])])
 #                 bqj = ceil(((self.bucket_count-1)*q_list_in_r[0,j])/self.reference_set_id.shape[0])
@@ -121,7 +136,7 @@ class PermutationBasedIndex(InvertedIndex):
             time_to_score += time() - t0
             time_to_score += q_list_time 
 
-        return scores, time_to_score
+        return np.negative(scores), time_to_score
         
 class PBINearestNeighbors(InvertedIndexNearestNeighborsBaseEstimator):
     def __init__(self,parameters = {}):
