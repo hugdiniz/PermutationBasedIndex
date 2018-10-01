@@ -161,14 +161,7 @@ def just_nouns_adjectives_and_verbs_hypernyms(doc):
 #     print('==============')
     return token_list
  
-    
-def tokenize_by_parameters(documents,queries,target,dataset_name, cv_parameters_dataframe_line,cv_parameters_dataframe_line_index,encoding,dataset_encoding):
-    '''
-        tokenize and store results 
-    '''
-    start_time = time()
-    file_path = h5_results_filename(dataset_name, 'cv', cv_parameters_dataframe_line_index) #"%s_cv_%d_results.h5"%(dataset_name,cv_parameters_dataframe_line_index)
-    
+def load_word_embeddings(file_path,documents):
     if not os.path.exists(file_path.replace('results.h5', 'words_in_vec.pkl')):
         t0 = time()
         model = gensim.models.KeyedVectors.load_word2vec_format('GoogleNews-vectors-negative300.bin', binary=True)
@@ -233,13 +226,25 @@ def tokenize_by_parameters(documents,queries,target,dataset_name, cv_parameters_
                    })
         time_dataframe.to_hdf(file_path.replace('results.h5', 'time_ww.h5'), 'time_ww_dataframe')
         print("time to create a words2vec matrix: "+str(timeCreateWordVec))
+        return matrix
+    
+def tokenize_by_parameters(documents,queries,target,dataset_name, cv_parameters_dataframe_line,cv_parameters_dataframe_line_index,encoding,dataset_encoding,use_word_embeddings):
+    '''
+        tokenize and store results 
+    '''
+    start_time = time()
+    file_path = h5_results_filename(dataset_name, 'cv', cv_parameters_dataframe_line_index) #"%s_cv_%d_results.h5"%(dataset_name,cv_parameters_dataframe_line_index)
+    parameters = cv_parameters_dataframe_line.to_dict()    
+    
+    if(use_word_embeddings == True):
+        load_word_embeddings(file_path,documents)
     
     if os.path.exists(file_path):
         print(file_path,' already exists!')
     else:
         print('start:',file_path)
         pipe_to_exec = Pipeline([("cv",TfidfVectorizer(binary=True, encoding=dataset_encoding))])
-        parameters = cv_parameters_dataframe_line.to_dict()
+        
         parameters['cv__encoding'] = encoding
     
         pipe_to_exec.set_params(**cv_parameters_dataframe_line)
@@ -293,6 +298,8 @@ def tokenize_by_parameters(documents,queries,target,dataset_name, cv_parameters_
                 print(i,'/',d.shape[0])
                 input('vazio!')
                 print(queries[i])
+    
+    
         
 
 def lsh_transform(dataset_name, lsht_parameters_dataframe_line, lsth_parameters_dataframe_line_index, encoding):
@@ -448,19 +455,21 @@ def pbinearest_neighbors_search(dataset_name, nns_parameters_dataframe_line, nns
         technique_name = "pbinns"
     
     if("pbinns__pivot_parameters" in nns_parameters_dataframe_line):
+        
         pivot_parameters = nns_parameters_dataframe_line["pbinns__pivot_parameters"]        
         vocabulary_file_path = dataset_name +"_cv_" + str(indexi) +"_vocabulary.pkl" 
         with open(vocabulary_file_path,'rb') as f:
             pivot_parameters["pbinns__vocabulary"] = pickle.load(f)
-            
-        matrix_wordvec = dataset_name +"_cv_" + str(indexi) +"_words_in_vec.pkl" 
-        fnemmap = np.memmap(matrix_wordvec, dtype='float16', mode='r', shape=(w.size,w.size))
-        pivot_parameters["pbinns__words_in_vec"]  = np.array(fnemmap,dtype='float16')
-        del fnemmap
         
-        matrix_words = dataset_name +"_cv_" + str(indexi) +"_words.pkl" 
-        with open(matrix_words,'rb') as f:
-            pivot_parameters["pbinns__words"] = pickle.load(f)       
+        if(nns_parameters_dataframe_line["pbinns_load_word_embeddings"]):
+            matrix_wordvec = dataset_name +"_cv_" + str(indexi) +"_words_in_vec.pkl" 
+            fnemmap = np.memmap(matrix_wordvec, dtype='float16', mode='r',)
+            pivot_parameters["pbinns__words_in_vec"]  = np.array(fnemmap,dtype='float16')
+            del fnemmap
+            
+            matrix_words = dataset_name +"_cv_" + str(indexi) +"_words.pkl" 
+            with open(matrix_words,'rb') as f:
+                pivot_parameters["pbinns__words"] = pickle.load(f)       
 #         nns_parameters_dataframe_line_index["pbinns__pivot_parameters"] = pivot_parameters
        
     file_path = h5_results_filename(dataset_name, technique_name, nns_parameters_dataframe_line_index)
