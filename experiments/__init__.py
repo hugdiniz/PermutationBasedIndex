@@ -52,7 +52,7 @@ def h5_results_filename(dataset_name,result_type,dataframe_pos):
     return h5_file_path
 
 def sparse_matrix_to_hdf(sparse_matrix,name_to_store,hdf_file_path):
-    nonzero_indices = np.nonzero(sparse_matrix>0)
+    nonzero_indices = np.nonzero(sparse_matrix!=0)
     if len(nonzero_indices[0]) == 0:
             raise Exception("can't store empty sparse matrix!")
     
@@ -639,6 +639,7 @@ def print_pbi(cv_df_paramaters, pbinns_df_paramaters,dataset_name,documents_coun
         del pbinns_time_dataframe 
   
         print('pbinns:')
+        print(rowi)
         print("MAP = %4.2f[+-%4.2f]"%(b.loc[pbinns_index,'MAP'],b.loc[pbinns_index,'MAP_std']))
         print("recall = %4.2f[+-%4.2f]"%(b.loc[pbinns_index,'recall_mean'],b.loc[pbinns_index,'recall_std']))
         print("index time = %4.4f"%(b.loc[pbinns_index,'cv_documents_mean_time']+b.loc[pbinns_index,'pbinns_documents_mean_time']))

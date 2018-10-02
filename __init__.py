@@ -66,10 +66,10 @@ class PermutationBasedIndex(InvertedIndex):
         self.reference_set_id, self.index_time = pivot_selection_function(X,self.pivot_parameters)
         self.index_features = X
          
-        self.bij = np.zeros((X.shape[0],self.prunning_size),np.int16)
+#         self.bij = np.zeros((X.shape[0],self.prunning_size),np.int16)
         self.r_map = np.empty(X.shape[0],dict)
         
-        self.bij += self.relative_ordered_list(X, range(X.shape[0]))[0]
+#         self.bij += self.relative_ordered_list(X, range(X.shape[0]))[0]
         
         for d_index in range(X.shape[0]):
             t0 = time()
@@ -98,19 +98,15 @@ class PermutationBasedIndex(InvertedIndex):
         elif(self.punishment_type == 'minimum'):
             penalty = self.prunning_size + 1
         elif(self.punishment_type == 'mean'):
-            penalty = (self.prunning_size + self.pivot_parameters.shape[0])/2 
+            penalty = (self.prunning_size + self.reference_set_id.shape[0])/2 
         elif(self.punishment_type == 'maximum'):
-            penalty = self.pivot_parameters.shape[0]
+            penalty = self.reference_set_id.shape[0]
         else:
             penalty = 0
             
         scores = np.zeros((X.shape[0], self.collection_size))
         
         time_to_score = 0
-        
-        for a in range(self.bij.shape[0]):
-            for b in range(a+1,self.bij.shape[1]):
-                print(a)
         
         for q_index in range(X.shape[0]):
             q_list_in_r, q_list_time = self.relative_ordered_list(X, q_index)
