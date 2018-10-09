@@ -65,17 +65,18 @@ class PermutationBasedIndex(InvertedIndex):
         
         self.reference_set_id, self.index_time = pivot_selection_function(X,self.pivot_parameters)
         self.index_features = X
-         
-#         self.bij = np.zeros((X.shape[0],self.prunning_size),np.int16)
-        self.r_map = np.empty(X.shape[0],dict)
         
-#         self.bij += self.relative_ordered_list(X, range(X.shape[0]))[0]
+        self.bij = np.zeros((X.shape[0],min(self.prunning_size,self.reference_set_id.shape[0])),np.int16)
+        
+        
+        #self.bij = np.array(self.relative_ordered_list(X, range(X.shape[0]))[0],dtype="int16")
         
         for d_index in range(X.shape[0]):
-            t0 = time()
+            #t0 = time()
             d_list_in_r, d_list_time = self.relative_ordered_list(X, d_index)
-            d_list_in_r = d_list_in_r[0]
-            self.r_map[d_index] = dict(zip(d_list_in_r, range(d_list_in_r.shape[0])))            
+            self.bij[d_index,:] = np.array(d_list_in_r,dtype="int16")
+        #    d_list_in_r = d_list_in_r[0]
+        #    self.r_map[d_index] = dict(zip(d_list_in_r, range(d_list_in_r.shape[0])))            
             #for j in range(d_list_in_r.shape[0]):
                 
                 #self.bij[d_index,j] = ceil(((self.bucket_count-1)*d_list_in_r[0,j])/self.reference_set_id.shape[0])
@@ -107,18 +108,15 @@ class PermutationBasedIndex(InvertedIndex):
         scores = np.zeros((X.shape[0], self.collection_size))
         
         time_to_score = 0
-        
+        t0 = time()
         for q_index in range(X.shape[0]):
             q_list_in_r, q_list_time = self.relative_ordered_list(X, q_index)
             q_list_in_r = q_list_in_r[0]
             
-            t0 = time()
-            for j in range(self.r_map.shape[0]):
-                for x in range(q_list_in_r.shape[0]):
-                    if(self.r_map[j].__contains__(q_list_in_r[x])):
-                        scores[q_index,j] = scores[q_index,j] +  abs(x - self.r_map[j][ q_list_in_r[x] ])
-                    else:
-                        scores[q_index,j] = scores[q_index,j] +  penalty
+            for j in range(self.collection_size):
+                positions = np.where(self.bij[j,:,np.newaxis] == q_list_in_r)
+                scores[q_index,j] = sum(abs(positions[0] - positions[1])) + (q_list_in_r.size - positions[0].size)*penalty
+                                
                 
                 #scores[q_index,j] = sum([abs(x - self.r_map[j][ q_list_in_r[x] ]) for x in range(q_list_in_r.shape[0])])
 #                 bqj = ceil(((self.bucket_count-1)*q_list_in_r[0,j])/self.reference_set_id.shape[0])
@@ -129,10 +127,11 @@ class PermutationBasedIndex(InvertedIndex):
         
                     
             
-            time_to_score += time() - t0
-            time_to_score += q_list_time 
+        time_to_score += time() - t0
+        
 
         return np.negative(scores), time_to_score
+ 
         
 class PBINearestNeighbors(InvertedIndexNearestNeighborsBaseEstimator):
     def __init__(self,parameters = {}):
