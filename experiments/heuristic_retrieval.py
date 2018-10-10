@@ -31,9 +31,9 @@ if __name__ == '__main__':
 
 
 
-    dataset_name,sample_size = "pan10-%d-samples",1000
+    dataset_name,sample_size = "pan10-%d-samples",100
     dataset_name = dataset_name%(sample_size)
-    queries_percentage = 100
+    queries_percentage = 50
 #    queries_percentage = 90
 
     cv_parameters = {
@@ -70,7 +70,7 @@ if __name__ == '__main__':
     lshnns_parameters = {
 
 #        "lshnns__n_neighbors" : (1597,),# 3991, 7983, 11975), # PAN11(EN, just queries with relevants) 10%, 25%, 50%, 75%,),
-        "lshnns__n_neighbors" : (250,),
+        "lshnns__n_neighbors" : (314,),
         "lshnns__sort_neighbors" : (False,),
                          
     }
@@ -89,62 +89,27 @@ if __name__ == '__main__':
         "pbinns__n_neighbors" : nns_parameters['nns__n_neighbors'],
         "pbinns__sort_neighbors" : nns_parameters['nns__sort_neighbors'],
         "pbinns__bucket_count" : (80,),
-        "pbinns__prunning_size" : (150,),
+        "pbinns__prunning_size" : (5,10,20,40,60,80,100,120,150),
         "pbinns__using_lsh" : (False,),
-        "pbinns__punishment_type" : ('minimum',),
+        "pbinns__punishment_type" : ('none',),
         "pbinns_load_word_embeddings": (False,),
         "pbinns__pivot_parameters" : (             
         
-        json.dumps({          
-             "pivot_selection_function" :kMedoids.__name__ ,       
-             "k" : 150,                                   
-         }),
-        json.dumps({          
-             "pivot_selection_function" :kMedoids.__name__ ,       
-             "k" : 200,                                   
-         }),
+#         json.dumps({          
+#              "pivot_selection_function" :kMedoids.__name__ ,       
+#              "k" : 150,                                   
+#          }),       
         json.dumps({          
              "pivot_selection_function" :reference_set_selection.__name__ ,
-             "ref_sel_threshold":1000,       
+             "ref_sel_threshold":500,       
              "k" : 150,
                                               
-         }),
-        json.dumps({          
-             "pivot_selection_function" :reference_set_selection.__name__ ,
-             "ref_sel_threshold":1000,       
-             "k" : 200,
-                                              
-         }),
-        json.dumps({          
-             "pivot_selection_function" :reference_set_selection.__name__ ,
-             "ref_sel_threshold":750,       
-             "k" : 200,
-                                              
-         }),
-        json.dumps({          
-             "pivot_selection_function" :random_select_pivot.__name__ ,      
-             "k" : 150,
-                                              
-         }),
-        json.dumps({          
-             "pivot_selection_function" :random_select_pivot.__name__ ,      
-             "k" : 200,
-                                              
-         }),
-        json.dumps({          
-             "pivot_selection_function" :random_select_pivot.__name__ ,      
-             "k" : 250,
-                                              
-         }),
+         }),  
 #         json.dumps({          
-#              "pivot_selection_function" :reference_set_selection.__name__ ,       
-#              "k" : 20,                                   
+#              "pivot_selection_function" :random_select_pivot.__name__ ,      
+#              "k" : 150,
+#                                               
 #          }),
-#         json.dumps({          
-#              "pivot_selection_function" :reference_set_selection.__name__ ,       
-#              "k" : 40,                                   
-#          }),
-       
 ),
 }
 
