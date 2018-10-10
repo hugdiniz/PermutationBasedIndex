@@ -13,7 +13,7 @@ from locality_sensitive_hashing import LSHTransformer, minmax_hashing, LSHIINear
     justCSAFullBound_hashing
     
 from PermutationBasedIndex import PBINearestNeighbors
-from PermutationBasedIndex.pivotSelection import reference_set_selection, kMedoids, kmeans,random_select_pivot,birch
+from PermutationBasedIndex.pivotSelection import reference_set_selection, kMedoids, kmeans,random_select_pivot,birch,reference_set_selection_ordered
 from PermutationBasedIndex.experiments import *
 
 
@@ -31,7 +31,7 @@ if __name__ == '__main__':
 
 
 
-    dataset_name,sample_size = "pan10-%d-samples",1000
+    dataset_name,sample_size = "pan10-%d-samples",20
     dataset_name = dataset_name%(sample_size)
     queries_percentage = 100
 #    queries_percentage = 90
@@ -70,7 +70,7 @@ if __name__ == '__main__':
     lshnns_parameters = {
 
 #        "lshnns__n_neighbors" : (1597,),# 3991, 7983, 11975), # PAN11(EN, just queries with relevants) 10%, 25%, 50%, 75%,),
-        "lshnns__n_neighbors" : (250,),
+        "lshnns__n_neighbors" : (40,),
         "lshnns__sort_neighbors" : (False,),
                          
     }
@@ -89,62 +89,30 @@ if __name__ == '__main__':
         "pbinns__n_neighbors" : nns_parameters['nns__n_neighbors'],
         "pbinns__sort_neighbors" : nns_parameters['nns__sort_neighbors'],
         "pbinns__bucket_count" : (80,),
-        "pbinns__prunning_size" : (150,),
+        "pbinns__prunning_size" : (20,),
         "pbinns__using_lsh" : (False,),
-        "pbinns__punishment_type" : ('minimum',),
+        "pbinns__punishment_type" : ('none',),
         "pbinns_load_word_embeddings": (False,),
         "pbinns__pivot_parameters" : (             
         
         json.dumps({          
-             "pivot_selection_function" :kMedoids.__name__ ,       
-             "k" : 150,                                   
-         }),
-        json.dumps({          
-             "pivot_selection_function" :kMedoids.__name__ ,       
-             "k" : 200,                                   
-         }),
-        json.dumps({          
-             "pivot_selection_function" :reference_set_selection.__name__ ,
-             "ref_sel_threshold":1000,       
-             "k" : 150,
+             "pivot_selection_function" :reference_set_selection_ordered.__name__ ,
+             "ref_sel_threshold":250,       
+             "k" : 20,
                                               
          }),
         json.dumps({          
              "pivot_selection_function" :reference_set_selection.__name__ ,
-             "ref_sel_threshold":1000,       
-             "k" : 200,
+             "ref_sel_threshold":250,       
+             "k" : 20,
                                               
          }),
-        json.dumps({          
-             "pivot_selection_function" :reference_set_selection.__name__ ,
-             "ref_sel_threshold":750,       
-             "k" : 200,
+       json.dumps({          
+             "pivot_selection_function" :random_select_pivot.__name__ ,
+             "ref_sel_threshold":250,       
+             "k" : 20,
                                               
          }),
-        json.dumps({          
-             "pivot_selection_function" :random_select_pivot.__name__ ,      
-             "k" : 150,
-                                              
-         }),
-        json.dumps({          
-             "pivot_selection_function" :random_select_pivot.__name__ ,      
-             "k" : 200,
-                                              
-         }),
-        json.dumps({          
-             "pivot_selection_function" :random_select_pivot.__name__ ,      
-             "k" : 250,
-                                              
-         }),
-#         json.dumps({          
-#              "pivot_selection_function" :reference_set_selection.__name__ ,       
-#              "k" : 20,                                   
-#          }),
-#         json.dumps({          
-#              "pivot_selection_function" :reference_set_selection.__name__ ,       
-#              "k" : 40,                                   
-#          }),
-       
 ),
 }
 

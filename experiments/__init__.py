@@ -22,7 +22,7 @@ from datetime import datetime
 from pprint import pprint
 
 from PermutationBasedIndex import PBINearestNeighbors
-from PermutationBasedIndex.pivotSelection import reference_set_selection, kMedoids, kmeans,random_select_pivot,birch,kmedoidwv,reference_set_selection_wv
+from PermutationBasedIndex.pivotSelection import reference_set_selection, kMedoids, kmeans,random_select_pivot,birch,kmedoidwv,reference_set_selection_wv,reference_set_selection_ordered
 
 from locality_sensitive_hashing import LSHTransformer, LSHIINearestNeighbors, InvertedIndexNearestNeighbors,BM25NearestNeighbors
  

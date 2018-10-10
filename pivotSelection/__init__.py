@@ -79,6 +79,49 @@ def reference_set_selection(X,parameters = {}):
     
     return X[set_id,:],time()-t0
 
+def reference_set_selection_ordered(X,parameters = {}):
+    if("k" in parameters):
+        reference_set_size = parameters["k"]
+    else:
+        reference_set_size = 25
+    if("function_distance" in parameters):
+        f_distance_metric = parameters["function_distance"]
+    else:
+        f_distance_metric = pairwise_cosine_distance
+    if("distance_metric" in parameters):
+        distance_metric = parameters["distance_metric"]
+    else:
+        distance_metric = "euclidean"    
+    if("ref_sel_threshold" in parameters):
+        ref_sel_threshold = parameters["ref_sel_threshold"]
+    else:
+        ref_sel_threshold = 0.5
+    
+    t0 = time()
+    
+    set_id = np.array([ceil(X.shape[0]/2)])
+
+    current_id = set_id[0]
+    
+    first_reference = np.nonzero(f_distance_metric(X[current_id,:],X,metric_distance=distance_metric) > ref_sel_threshold)[1]
+
+    i = 0 
+    set_distances = [0]       
+    while i < len(first_reference):
+        current_id = first_reference[i]
+        i += 1
+        distances = f_distance_metric(X[current_id,:],X[set_id,:],metric_distance=distance_metric)
+        current_reference = np.nonzero(distances < ref_sel_threshold)[1]
+        
+        if len(current_reference) == 0:
+            set_distances += distances[0]            
+            set_distances = np.append(set_distances,sum(distances[0]))            
+            set_id = np.append(set_id,current_id)
+        del current_reference
+        
+    
+    return X[set_id[np.argsort(-distances[0])[:reference_set_size]],:],time()-t0
+
 
 '''
     Bauckhage C. Numpy/scipy Recipes for Data Science: k-Medoids Clustering[R]. Technical Report, University of Bonn, 2015.
