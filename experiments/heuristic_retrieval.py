@@ -31,7 +31,7 @@ if __name__ == '__main__':
 
 
 
-    dataset_name,sample_size = "pan10-%d-samples",20
+    dataset_name,sample_size = "pan10-%d-samples",2
     dataset_name = dataset_name%(sample_size)
     queries_percentage = 100
 #    queries_percentage = 90
@@ -92,7 +92,7 @@ if __name__ == '__main__':
         "pbinns__prunning_size" : (20,),
         "pbinns__using_lsh" : (False,),
         "pbinns__punishment_type" : ('none',),
-        "pbinns_load_word_embeddings": (False,),
+        "pbinns_load_word_embeddings": (True,),
         "pbinns__pivot_parameters" : (             
         
         json.dumps({          
@@ -177,7 +177,7 @@ if __name__ == '__main__':
         using scikit-learn : tokenization
     '''
     for i,linei in cv_df_paramaters.iterrows():
-        tokenize_by_parameters(documents,queries,target,dataset_name,linei,i,dataset_encoding,dataset_encoding,pbinns_parameters["pbinns_load_word_embeddings"])
+        tokenize_by_parameters(documents,queries,target,dataset_name,linei,i,dataset_encoding,dataset_encoding,pbinns_parameters["pbinns_load_word_embeddings"][0])
 
     queries_count,documents_count = target.shape
     del documents, queries, target

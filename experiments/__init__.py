@@ -163,61 +163,45 @@ def just_nouns_adjectives_and_verbs_hypernyms(doc):
  
 def load_word_embeddings(file_path,documents):
     if not os.path.exists(file_path.replace('results.h5', 'words_in_vec.pkl')):
-        t0 = time()
-        model = gensim.models.KeyedVectors.load_word2vec_format('GoogleNews-vectors-negative300.bin', binary=True)
-        words = []
-        if not os.path.exists(file_path.replace('results.h5', 'words.pkl')):
-            for i in range(documents.__len__()):
-                text = str(documents[i])
-                text = text.replace("\\n", " ")
-                text = text.replace("\\xbb", " ")
-                text = text.replace("\\xbf", " ")
-                text = text.replace("\\xef", " ")
-                text = text.replace('"', " ")
-                text = text.replace("'b", " ")
-                text = text.replace("\\", " ")
-                text = text.replace("/", " ")
-                text = text.replace(":", " ")
-                text = text.replace(",", " ")
-                text = text.replace(".", " ")
-                text = text.replace(";", " ")
-                text = text.replace("?", " ")
-                text = text.replace("^", " ")
-                text = text.replace("~", " ")
-                text = text.replace("`", " ")
-                text = text.replace("{", " ")
-                text = text.replace("}", " ")
-                text = text.replace("[", " ")
-                text = text.replace("]", " ")
-                text = text.replace("#", " ")
-                text = text.replace("$", " ")
-                text = text.replace("*", " ")
-                text = text.replace("(", " ")
-                text = text.replace(")", " ")
-                text = re.sub(" +",' ',text)
-                
-                for word in text.split(" "):
-                    if word not in words:
-                        if word in model.vocab:                
-                            words.append(word)
-                
-            
-            timeCreateWordVec = time()-t0
-            print("time to create a load dataset: "+str(timeCreateWordVec))
-            
-            with open(file_path.replace('results.h5', 'words.pkl'),'wb') as f:
-                pickle.dump(words,f)
-        
-        w = []
-        with open(file_path.replace('results.h5', 'words.pkl'),'rb') as f:
-            words = pickle.load(f)
-            w  = np.array(words)
-            del words
-        
-        matrix = np.memmap(file_path.replace('results.h5', 'words_in_vec.pkl'), mode='w+', shape=(w.size,w.size),dtype=np.float16)
-        for i in range(w.size):
-            matrix[i,i:] = np.array(np.where(True,model.similarity(w[i:],w[i]),0),dtype=np.float16)
        
+        model = gensim.models.KeyedVectors.load_word2vec_format('GoogleNews-vectors-negative300.bin', binary=True)
+        texts = []
+        for i in range(documents.__len__()):
+            text = str(documents[i])
+            text = text.replace("\\n", " ")
+            text = text.replace("\\xbb", " ")
+            text = text.replace("\\xbf", " ")
+            text = text.replace("\\xef", " ")
+            text = text.replace('"', " ")
+            text = text.replace("'b", " ")
+            text = text.replace("\\", " ")
+            text = text.replace("/", " ")
+            text = text.replace(":", " ")
+            text = text.replace(",", " ")
+            text = text.replace(".", " ")
+            text = text.replace(";", " ")
+            text = text.replace("?", " ")
+            text = text.replace("^", " ")
+            text = text.replace("~", " ")
+            text = text.replace("`", " ")
+            text = text.replace("{", " ")
+            text = text.replace("}", " ")
+            text = text.replace("[", " ")
+            text = text.replace("]", " ")
+            text = text.replace("#", " ")
+            text = text.replace("$", " ")
+            text = text.replace("*", " ")
+            text = text.replace("(", " ")
+            text = text.replace(")", " ")
+            text = re.sub(" +",' ',text)
+            texts.append(text)
+        t0 = time()
+        
+        matrix = lil_matrix((texts.__len__(),texts.__len__()))
+        for j in range(texts.__len__()):
+            for i in range(j,texts.__len__()):
+                matrix[i,j] = model.wmdistance(texts[i],texts[j])        
+        print(time() - t0)
         del model     
         
         timeCreateWordVec = time()-t0
