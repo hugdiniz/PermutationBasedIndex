@@ -5,7 +5,7 @@ import scipy as sp
 import random
 from time import time
 from sklearn.metrics.pairwise import pairwise_distances
-from sklearn.cluster import KMeans,Birch
+from sklearn.cluster import KMeans,Birch,MiniBatchKMeans,AffinityPropagation
 from random import sample
 from sklearn.decomposition import PCA
 from pyclustering.cluster.kmedoids import kmedoids
@@ -205,6 +205,11 @@ def kmeans(X, parameters = {}):
     else:
         distance_metric = "jaccard"
         
+    if("max_iter" in parameters):
+        max_iter = parameters["max_iter"]
+    else:
+        max_iter = 100
+            
     if("k" in parameters):
         k = parameters["k"]
     else:
@@ -219,7 +224,114 @@ def kmeans(X, parameters = {}):
     #D = f_distance_metric(X).T
         
     
-    kmeans = KMeans(n_clusters=k, random_state=random_state).fit(X)
+    kmeans = AffinityPropagation(n_clusters=k, random_state=random_state,max_iter=max_iter).fit(X)
+    
+    M = kmeans.cluster_centers_
+    
+    return  kmeans.cluster_centers_, time()-t0
+
+
+def aff_prop(X, parameters = {}):
+
+    t0 = time()
+    if("function_distance" in parameters):
+        f_distance_metric = parameters["function_distance"]
+    else:
+        f_distance_metric = pairwise_cosine_distance
+    if("distance_metric" in parameters):
+        distance_metric = parameters["distance_metric"]
+    else:
+        distance_metric = "jaccard"
+        
+    if("k" in parameters):
+        k = parameters["k"]
+    else:
+        k = 10
+        
+    if("max_iter" in parameters):
+        max_iter = parameters["max_iter"]
+    else:
+        max_iter = 200
+    
+        
+    #D = f_distance_metric(X).T
+        
+    
+    kmeans = AffinityPropagation(max_iter=max_iter).fit(X)
+   
+    
+    return kmeans.cluster_centers_, time()-t0
+
+
+def affinityPropagation(X, parameters = {}):
+    
+    t0 = time()
+    if("function_distance" in parameters):
+        f_distance_metric = parameters["function_distance"]
+    else:
+        f_distance_metric = pairwise_cosine_distance
+    if("distance_metric" in parameters):
+        distance_metric = parameters["distance_metric"]
+    else:
+        distance_metric = "jaccard"
+        
+    if("max_iter" in parameters):
+        max_iter = parameters["max_iter"]
+    else:
+        max_iter = 100
+            
+    if("k" in parameters):
+        k = parameters["k"]
+    else:
+        k = 10
+        
+    if("random_state" in parameters):
+        random_state = parameters["random_state"]
+    else:
+        random_state = 0
+    
+        
+    #D = f_distance_metric(X).T
+        
+    
+    kmeans = AffinityPropagation().fit(X)
+    
+    M = kmeans.cluster_centers_
+    
+    return  kmeans.cluster_centers_, time()-t0
+
+def miniBatchkmeans(X, parameters = {}):
+    
+    t0 = time()
+    if("function_distance" in parameters):
+        f_distance_metric = parameters["function_distance"]
+    else:
+        f_distance_metric = pairwise_cosine_distance
+    if("distance_metric" in parameters):
+        distance_metric = parameters["distance_metric"]
+    else:
+        distance_metric = "jaccard"
+        
+    if("max_iter" in parameters):
+        max_iter = parameters["max_iter"]
+    else:
+        max_iter = 100
+            
+    if("k" in parameters):
+        k = parameters["k"]
+    else:
+        k = 10
+        
+    if("random_state" in parameters):
+        random_state = parameters["random_state"]
+    else:
+        random_state = 0
+    
+        
+    #D = f_distance_metric(X).T
+        
+    
+    kmeans = MiniBatchKMeans(n_clusters=k).fit(X)
     
     M = kmeans.cluster_centers_
     

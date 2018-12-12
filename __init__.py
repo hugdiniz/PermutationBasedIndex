@@ -1,5 +1,5 @@
 from PermutationBasedIndex.distance_metric import pairwise_cosine_distance
-from PermutationBasedIndex.pivotSelection import reference_set_selection, kMedoids, kmeans,random_select_pivot
+from PermutationBasedIndex.pivotSelection import reference_set_selection, kMedoids, kmeans,random_select_pivot,miniBatchkmeans
 import collections
 from math import ceil, sqrt, floor
 import numpy as np
