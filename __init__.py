@@ -98,6 +98,10 @@ class PermutationBasedIndex(InvertedIndex):
             penalty = 0
         elif(self.punishment_type == 'minimum'):
             penalty = self.prunning_size + 1
+        elif(self.punishment_type == 'only_left'):
+            penalty = self.prunning_size + 1
+        elif(self.punishment_type == 'all_sides'):
+            penalty = self.prunning_size + 1
         elif(self.punishment_type == 'mean'):
             penalty = (self.prunning_size + self.reference_set_id.shape[0])/2 
         elif(self.punishment_type == 'maximum'):
@@ -109,13 +113,38 @@ class PermutationBasedIndex(InvertedIndex):
         
         time_to_score = 0
         t0 = time()
-        for q_index in range(X.shape[0]):
-            q_list_in_r, q_list_time = self.relative_ordered_list(X, q_index)
-            q_list_in_r = q_list_in_r[0]
-            
-            for j in range(self.collection_size):
-                positions = np.where(self.bij[j,:,np.newaxis] == q_list_in_r)
-                scores[q_index,j] = sum(abs(positions[0] - positions[1])) + (q_list_in_r.size - positions[0].size)*penalty
+        
+        if(self.punishment_type == 'minimum'):
+            for q_index in range(X.shape[0]):
+                q_list_in_r, q_list_time = self.relative_ordered_list(X, q_index)
+                q_list_in_r = q_list_in_r[0]                
+                for j in range(self.collection_size):
+                    positions = np.where(self.bij[j,:,np.newaxis] == q_list_in_r)
+                    scores[q_index,j] = sum(abs(positions[0] - positions[1])) + (q_list_in_r.size - positions[0].size)*penalty                                  
+        elif(self.punishment_type == 'only_left'):
+            for q_index in range(X.shape[0]):
+                q_list_in_r, q_list_time = self.relative_ordered_list(X, q_index)
+                q_list_in_r = q_list_in_r[0]
+                for j in range(self.collection_size):
+                    positions = np.where(self.bij[j,:,np.newaxis] == q_list_in_r)
+                    notPos = np.arange(self.bij[j,:,np.newaxis].size)[np.logical_not(np.isin(self.bij[j,:,np.newaxis], q_list_in_r)).T[0]]
+                    scores[q_index,j] = sum(abs(positions[0] - positions[1])) + sum(penalty - notPos)
+        elif(self.punishment_type == 'all_sides'):
+            for q_index in range(X.shape[0]):
+                q_list_in_r, q_list_time = self.relative_ordered_list(X, q_index)
+                q_list_in_r = q_list_in_r[0]
+                for j in range(self.collection_size):
+                    positions = np.where(self.bij[j,:,np.newaxis] == q_list_in_r)
+                    notPosLeft =  np.arange(self.bij[j,:,np.newaxis].size)[np.logical_not(np.isin(self.bij[j,:,np.newaxis], q_list_in_r)).T[0]]
+                    notPosRight = np.arange(self.bij[j,:,np.newaxis].size)[np.logical_not(np.isin(q_list_in_r, self.bij[j,:,np.newaxis]))]
+                    scores[q_index,j] = sum(abs(positions[0] - positions[1])) + sum(penalty - notPosLeft) + sum(penalty - notPosRight)
+        else:
+            for q_index in range(X.shape[0]):
+                q_list_in_r, q_list_time = self.relative_ordered_list(X, q_index)
+                q_list_in_r = q_list_in_r[0]    
+                for j in range(self.collection_size):
+                    positions = np.where(self.bij[j,:,np.newaxis] == q_list_in_r)
+                    scores[q_index,j] = sum(abs(positions[0] - positions[1]))
                                 
                 
                 #scores[q_index,j] = sum([abs(x - self.r_map[j][ q_list_in_r[x] ]) for x in range(q_list_in_r.shape[0])])
