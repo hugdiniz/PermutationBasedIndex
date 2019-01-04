@@ -1,4 +1,5 @@
 import numpy as np
+import sys
 from time import time
 import pandas as pd
 from math import ceil
@@ -15,6 +16,7 @@ from locality_sensitive_hashing import LSHTransformer, minmax_hashing, LSHIINear
 from PermutationBasedIndex import PBINearestNeighbors
 from PermutationBasedIndex.pivotSelection import reference_set_selection, kMedoids, kmeans,random_select_pivot,birch,reference_set_selection_ordered,miniBatchkmeans,affinityPropagation,aff_prop
 from PermutationBasedIndex.experiments import *
+from networkx.classes.function import non_neighbors
 
 
 
@@ -25,14 +27,42 @@ if __name__ == '__main__':
         creating TfIdfVectorizer, LSHTransformer and LSHIINearestNeighbors parameters grids and
         storing it as pandas Dataframes on hdf
     '''
-#    dataset_name = "pan11"
+
+    
+    argv_length = sys.argv.__len__()
+    dataset_argv = "pan11"
+    sample_argv = 100
+    pivot_selection__argv = "random_select_pivot"
+    k_argv = 100
+    prunning_argv = 10
+    prunning_type_argv = "minimum"
+    score_type_argv = "spearmanFootrule"
+    n_neighbors_argv = 10
+    
+    if(argv_length > 1):
+        dataset_argv = sys.argv[1]
+    if(argv_length > 2):
+        sample_argv = int(sys.argv[2])
+    if(argv_length > 3):
+        pivot_selection__argv = sys.argv[3]
+    if(argv_length > 4):
+        k_argv = int(sys.argv[4])
+    if(argv_length > 5):
+        prunning_argv = int(sys.argv[5])
+    if(argv_length > 6):
+        prunning_type_argv = sys.argv[6]
+    if(argv_length > 7):
+        score_type_argv = sys.argv[7]        
+    if(argv_length > 8):
+        n_neighbors_argv = int(sys.argv[8])   
+    
+    dataset_name = dataset_argv
+    sample_size = sample_argv
 #    dataset_name = "pan10"
 #    dataset_name = "psa"
-
-
-
-    dataset_name,sample_size = "pan10-%d-samples",10
-    dataset_name = dataset_name%(sample_size)
+    
+#     dataset_name,sample_size = "pan10-%d-samples",10
+#     dataset_name = dataset_name%(sample_size)
     queries_percentage = 100
 #    queries_percentage = 90
 
@@ -70,7 +100,7 @@ if __name__ == '__main__':
     lshnns_parameters = {
 
 #        "lshnns__n_neighbors" : (1597,),# 3991, 7983, 11975), # PAN11(EN, just queries with relevants) 10%, 25%, 50%, 75%,),#
-        "lshnns__n_neighbors" : (25,),
+        "lshnns__n_neighbors" : (n_neighbors_argv,),
         "lshnns__sort_neighbors" : (False,),
                          
     }
@@ -89,17 +119,17 @@ if __name__ == '__main__':
         "pbinns__n_neighbors" : nns_parameters['nns__n_neighbors'],
         "pbinns__sort_neighbors" : nns_parameters['nns__sort_neighbors'],
         "pbinns__bucket_count" : (80,),
-        "pbinns__prunning_size" : (20,),
+        "pbinns__prunning_size" : (prunning_argv,),
         "pbinns__using_lsh" : (False,),
-        "pbinns__punishment_type" : ('minimum','only_left','all_sides','none'),
-        "pbinns__score_type" : ("spearmanRho","spearmanFootrule","kendallTau"),
+        "pbinns__punishment_type" : (prunning_type_argv,),
+        "pbinns__score_type" : (score_type_argv,),
         "pbinns_load_word_embeddings": (False,),
         "pbinns__pivot_parameters" : (    
         
        
         json.dumps({          
-             "pivot_selection_function" :reference_set_selection_ordered.__name__ , 
-             "k" : 20,                   
+             "pivot_selection_function" : pivot_selection__argv, 
+             "k" : k_argv,                   
              #"distance_metric" : "euclidean",                                              
          }),
 #         json.dumps({          
