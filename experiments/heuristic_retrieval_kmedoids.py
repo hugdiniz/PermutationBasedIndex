@@ -98,66 +98,33 @@ if __name__ == '__main__':
         "pbinns__pivot_parameters" : (    
 
          json.dumps({          
-              "pivot_selection_function" :reference_set_selection.__name__ ,
+              "pivot_selection_function" :kMedoids.__name__ ,
               "ref_sel_threshold":0.5,       
               "k" : 100,                                               
          }), 
           json.dumps({          
-               "pivot_selection_function" :reference_set_selection.__name__ ,
+               "pivot_selection_function" :kMedoids.__name__ ,
                "ref_sel_threshold":0.5,       
                "k" : 75,                                               
           }), 
           
          json.dumps({          
-               "pivot_selection_function" :reference_set_selection.__name__ ,
+               "pivot_selection_function" :kMedoids.__name__ ,
                "ref_sel_threshold":0.5,       
                "k" : 50,                                               
           }),
          
          json.dumps({          
-               "pivot_selection_function" :reference_set_selection.__name__ ,
+               "pivot_selection_function" :kMedoids.__name__ ,
                "ref_sel_threshold":0.5,       
                "k" : 25,                                               
           }),     
         
         json.dumps({          
-              "pivot_selection_function" :reference_set_selection.__name__ ,
+              "pivot_selection_function" :kMedoids.__name__ ,
               "ref_sel_threshold":0.5,       
               "k" : 10,                                               
-         }),  
-
-
-         json.dumps({          
-              "pivot_selection_function" :random_select_pivot.__name__ ,
-              "ref_sel_threshold":0.5,       
-              "k" : 100,                                               
-         }), 
-          json.dumps({          
-               "pivot_selection_function" :random_select_pivot.__name__ ,
-               "ref_sel_threshold":0.5,       
-               "k" : 75,                                               
-          }), 
-          
-         json.dumps({          
-               "pivot_selection_function" :random_select_pivot.__name__ ,
-               "ref_sel_threshold":0.5,       
-               "k" : 50,                                               
-          }),
-         
-         json.dumps({          
-               "pivot_selection_function" :random_select_pivot.__name__ ,
-               "ref_sel_threshold":0.5,       
-               "k" : 25,                                               
-          }),     
-        
-        json.dumps({          
-              "pivot_selection_function" :random_select_pivot.__name__ ,
-              "ref_sel_threshold":0.5,       
-              "k" : 10,                                               
-         }),       
-                  
-             
-           
+         }),           
 ),
 }
 
