@@ -70,7 +70,7 @@ if __name__ == '__main__':
     
     lshnns_parameters = {
 
-        "lshnns__n_neighbors" : (1597,) #3991,7983, 11975), # PAN11(EN, just queries with relevants) 10%, 25%, 50%, 75%,),# 1114,2787,5574,8361 Pan 10
+        "lshnns__n_neighbors" : (1597,), #3991,7983, 11975), # PAN11(EN, just queries with relevants) 10%, 25%, 50%, 75%,),# 1114,2787,5574,8361 Pan 10
 #        "lshnns__n_neighbors" : (300,),
         "lshnns__sort_neighbors" : (False,),
                          
